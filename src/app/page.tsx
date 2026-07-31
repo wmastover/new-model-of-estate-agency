@@ -1,65 +1,179 @@
-import Image from "next/image";
+import Tour from "../components/Tour";
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+    <div style={{ maxWidth: 1180, margin: "0 auto", padding: "0 24px", width: "100%" }}>
+      {/* Masthead */}
+      <header
+        style={{
+          padding: "72px 0 52px",
+          borderBottom: "1px solid var(--hairline-10)",
+          marginBottom: 64,
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 14,
+            marginBottom: 56,
+            flexWrap: "wrap",
+          }}
+        >
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+            <span
+              className="mono"
+              style={{
+                fontSize: 20,
+                fontWeight: 500,
+                letterSpacing: 2,
+                color: "var(--ink-800)",
+              }}
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+              AIP
+            </span>
+            <span
+              className="aip-caret"
+              style={{
+                display: "inline-block",
+                width: 8,
+                height: 16,
+                background: "var(--blue)",
+              }}
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+          </span>
+          <span style={{ fontSize: 16, fontWeight: 600, letterSpacing: "-0.01em" }}>
+            Applied Intelligence Partners
+          </span>
+          <span
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 8,
+              border: "1px solid var(--hairline-16)",
+              borderRadius: 2,
+              padding: "6px 11px",
+              fontSize: 12,
+              color: "var(--ink-500)",
+            }}
           >
-            Documentation
-          </a>
+            <span
+              style={{
+                width: 5,
+                height: 5,
+                background: "var(--ink-800)",
+                transform: "rotate(45deg)",
+                display: "inline-block",
+              }}
+            />
+            Backed by Antler
+          </span>
         </div>
+
+        <div className="kicker" style={{ color: "var(--blue)", marginBottom: 22 }}>
+          Operating model — working draft · July 2026
+        </div>
+        <h1
+          className="mono"
+          style={{
+            fontWeight: 600,
+            fontSize: "clamp(38px, 6vw, 60px)",
+            letterSpacing: "-0.035em",
+            lineHeight: 1.02,
+            margin: "0 0 20px",
+            color: "var(--ink-900)",
+          }}
+        >
+          A new model of estate&nbsp;agency.
+        </h1>
+        <p
+          style={{
+            fontSize: 18,
+            lineHeight: 1.6,
+            color: "var(--ink-500)",
+            maxWidth: 680,
+            margin: "0 0 34px",
+          }}
+        >
+          How UK residential estate agency actually works, job by job — and
+          exactly where AI changes the economics. Not AI replacing the agent:
+          the work splits into three kinds, and each kind should be handled
+          differently. Detailed enough to build an agency from scratch. Step
+          through the property below.
+        </p>
+
+        {/* Legend */}
+        <div
+          style={{
+            display: "flex",
+            gap: 28,
+            flexWrap: "wrap",
+            borderTop: "1px solid var(--hairline-10)",
+            paddingTop: 20,
+          }}
+        >
+          {(
+            [
+              [
+                "rgba(15,16,17,.07)",
+                "Human-led — trust-critical, relationship-defining",
+              ],
+              [
+                "repeating-linear-gradient(45deg, rgba(47,111,224,.30) 0 1.5px, rgba(47,111,224,.06) 1.5px 8px)",
+                "Human + AI — side by side",
+              ],
+              [
+                "rgba(47,111,224,.18)",
+                "AI-led — repetitive, process-driven",
+              ],
+            ] as const
+          ).map(([swatch, label]) => (
+            <span
+              key={label}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 10,
+                fontSize: 14,
+                color: "var(--ink-500)",
+              }}
+            >
+              <span
+                style={{
+                  width: 16,
+                  height: 16,
+                  flexShrink: 0,
+                  background: swatch,
+                  border: "1px solid var(--hairline-16)",
+                }}
+              />
+              {label}
+            </span>
+          ))}
+        </div>
+      </header>
+
+      <main style={{ flex: 1 }}>
+        <Tour />
       </main>
+
+      <footer
+        className="mono"
+        style={{
+          marginTop: 110,
+          borderTop: "1px solid var(--hairline-10)",
+          padding: "40px 0 80px",
+          color: "var(--ink-300)",
+          fontSize: 13,
+          display: "flex",
+          justifyContent: "space-between",
+          gap: 20,
+          flexWrap: "wrap",
+        }}
+      >
+        <span>AIP — Applied Intelligence Partners</span>
+        <span>A new model of estate agency · working draft · content will change, the rooms won&apos;t</span>
+      </footer>
     </div>
   );
 }

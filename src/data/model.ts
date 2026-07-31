@@ -1,0 +1,744 @@
+/**
+ * A New Model of Estate Agency — content model.
+ *
+ * Working draft. Section (room) structure is stable; copy lives in the
+ * `blocks` arrays, so edits should mostly happen there.
+ */
+
+/** Who leads the work. Replaces the 🟥🟨🟩 emoji from the source doc. */
+export type Assignment = "human" | "hybrid" | "ai";
+
+export const ASSIGNMENT_META: Record<
+  Assignment,
+  { label: string; description: string }
+> = {
+  human: {
+    label: "Human-led",
+    description:
+      "Some work should stay with a person because handing it to a machine would damage the customer experience or lose the sale. This is the high-stakes, high-emotion, relationship-defining work.",
+  },
+  hybrid: {
+    label: "Human + AI",
+    description:
+      "Some work is best done by a person and an AI agent operating side by side, with the AI handling speed, coverage and admin, and the human handling judgement and warmth.",
+  },
+  ai: {
+    label: "AI-led",
+    description:
+      "Some work is repetitive and process-driven. It should be led by AI so that people are freed up for the work that actually matters.",
+  },
+};
+
+/** The three lenses on the business, toggled above the drawing. */
+export type LayerId = "mechanics" | "people" | "interfaces";
+
+export const LAYERS: {
+  id: LayerId;
+  num: string;
+  label: string;
+  description: string;
+  drafted: boolean;
+}[] = [
+  {
+    id: "mechanics",
+    num: "01",
+    label: "The mechanics",
+    description:
+      "The jobs to be done — how the business works, room by room, and where AI takes the work.",
+    drafted: true,
+  },
+  {
+    id: "people",
+    num: "02",
+    label: "The people",
+    description:
+      "The roles — who sits where in a modern agency, and how the agent layer changes every seat.",
+    drafted: true,
+  },
+  {
+    id: "interfaces",
+    num: "03",
+    label: "The interfaces",
+    description:
+      "The wiring — how AI connects the agency to boards, solicitors and mortgage advisors, and monetises those relationships.",
+    drafted: false,
+  },
+];
+
+export type Block =
+  | { kind: "lead"; text: string }
+  | { kind: "p"; text: string }
+  | { kind: "h"; text: string }
+  | { kind: "list"; ordered?: boolean; title?: string; items: string[] }
+  | {
+      kind: "callout";
+      tone: Assignment;
+      label: string;
+      body?: string;
+      items?: string[];
+    }
+  | { kind: "stat"; value: string; title: string; note?: string }
+  | { kind: "banner"; label: string; text: string };
+
+export interface Room {
+  slug: string;
+  /** Room in the property metaphor — kept as internal flavour, not displayed. */
+  room: string;
+  /** The actual job-to-be-done / section title. */
+  title: string;
+  /** Why this section lives in this room. */
+  conceit: string;
+  assignment: Assignment | null;
+  summary: string;
+  blocks: Block[];
+  /** Section not yet written — rendered as "under renovation". */
+  unfinished?: boolean;
+  /** Rect on the floor plan, in viewBox units. */
+  rect: { x: number; y: number; w: number; h: number };
+  /** Optional explicit line-wrapping for the label on the plan. */
+  planLabel?: string[];
+  /** Where the room label sits if not centered. */
+  outdoor?: boolean;
+}
+
+export const PLAN = { w: 720, h: 1300 } as const;
+
+export const ROOMS: Room[] = [
+  {
+    slug: "the-thesis",
+    room: "Front garden",
+    title: "The thesis",
+    conceit: "Every viewing starts at the kerb. So does this document.",
+    assignment: null,
+    summary:
+      "Estate agency is approaching its first real inflection point since the portals arrived. Here is the whole business, split into eight jobs — and a framework for who should do each one.",
+    outdoor: true,
+    rect: { x: 60, y: 30, w: 600, h: 160 },
+    blocks: [
+      {
+        kind: "lead",
+        text: "Residential estate agency in the UK has worked in largely the same way since the property portals and modern CRMs arrived in the early 2000s. That was the last time the shape of the job really changed. We think another change of that size is now close, and this time it will be driven by AI and automation.",
+      },
+      {
+        kind: "p",
+        text: "It helps to start from what each side is actually paying for. From the vendor's point of view, you pay an estate agent to take the hassle of selling a house off your hands. From the agent's point of view, the job is to sell as many houses as possible, and there is a fixed list of things that have to happen for that to occur.",
+      },
+      {
+        kind: "p",
+        text: "Our view is not that AI replaces the agent. It is that the work splits into three kinds, and each kind should be handled differently.",
+      },
+      { kind: "h", text: "The framework: who should do what" },
+      {
+        kind: "p",
+        text: "Every job in the sale of a house falls into one of three buckets.",
+      },
+      {
+        kind: "callout",
+        tone: "human",
+        label: "Human-led",
+        body: "Some work should stay with a person because handing it to a machine would damage the customer experience or lose the sale. This is the high-stakes, high-emotion, relationship-defining work.",
+      },
+      {
+        kind: "callout",
+        tone: "hybrid",
+        label: "Human and AI together",
+        body: "Some work is best done by a person and an AI agent operating side by side, with the AI handling speed, coverage and admin, and the human handling judgement and warmth.",
+      },
+      {
+        kind: "callout",
+        tone: "ai",
+        label: "AI-led",
+        body: "Some work is repetitive and process-driven. It should be led by AI so that people are freed up for the work that actually matters.",
+      },
+      {
+        kind: "p",
+        text: "Mapped onto the eight jobs of a sale, you get the floor plan this document is built around. Each section covers the same four things: what the job is, how it works today, why it sits where it does on the human/AI scale, and where AI fits in.",
+      },
+      {
+        kind: "banner",
+        label: "The model",
+        text: "Human-led where trust wins business. AI-led where process wins margin. Together everywhere else.",
+      },
+    ],
+  },
+  {
+    slug: "booking-valuations",
+    room: "Entrance hall",
+    title: "Booking valuations",
+    conceit: "The valuation is how an agency gets through the front door.",
+    assignment: "hybrid",
+    summary:
+      "Getting a vendor to agree to a face-to-face valuation appointment — arguably the single most valuable activity an agency does. Everything downstream depends on it.",
+    rect: { x: 60, y: 190, w: 300, h: 310 },
+    blocks: [
+      { kind: "h", text: "What the job is" },
+      {
+        kind: "lead",
+        text: "Getting a vendor to agree to a face-to-face valuation appointment. This is arguably the single most valuable activity an agency does — the valuation is your best chance to win a vendor's business, and everything downstream depends on it.",
+      },
+      {
+        kind: "stat",
+        value: "~£5,000",
+        title: "What one instruction is worth",
+        note: "A £500,000 home is worth roughly £5,000 to the agency in commission, since fees generally sit between 1% and 1.5%. The better you are at booking valuations, the more business you win, and the more you earn.",
+      },
+      { kind: "h", text: "How it works today" },
+      {
+        kind: "list",
+        ordered: true,
+        title: "Where valuations come from — a good agency works all of them",
+        items: [
+          "Existing connections — for example a vendor who came back because you sold their house five years ago",
+          "Touting — mail-outs to houses currently on the market with a competitor",
+          "Mail-outs to the neighbours of houses you have sold",
+          "Website enquiries, which are less common than they used to be",
+          "Portal enquiries from Rightmove, Zoopla and OnTheMarket — these usually land with around six agents at once, so they are highly competitive",
+          "Turning a buyer into a seller — someone viewing one of your listings has their own house to sell",
+          "Brand awareness — the high street shop, sold boards, local newspapers, market update emails, your listings on the portals, and your Instagram and Facebook presence",
+          "Re-engaging vendors who instructed a competitor",
+          "Direct phone calls into the office",
+        ],
+      },
+      {
+        kind: "p",
+        text: "Enquiries from your website and the portals usually pull through into an inbox on the CRM. Most agents will call the vendor the moment they see the enquiry to try to book a time. A high-touch, personal approach wins more business here, so agents compete to be first to make contact — especially on portal enquiries, where the competition is fiercest.",
+      },
+      {
+        kind: "callout",
+        tone: "hybrid",
+        label: "Why it sits here",
+        body: "The relationship starts at the first contact, and being human and fast is what wins it. But a person cannot always call within seconds, and cannot personalise every touch at scale. That gap is exactly what an AI agent can close without cheapening the experience.",
+      },
+      {
+        kind: "callout",
+        tone: "ai",
+        label: "Where AI fits in",
+        items: [
+          "A personal holding message within 60 seconds of an enquiry landing. It can reference the specific house, confirm the agent has looked at it, and promise a call as soon as possible. You will not always be able to call immediately, but you can guarantee the vendor hears from you first — with something that feels considered rather than automated.",
+          "A genuinely personalised valuation pack. One local agency we know leaves a valuation pack on the doorstep of every booked valuation, the same day the enquiry comes in. Today that pack is a generic company document that walks through the process. AI can make it ten times better: picture a vendor arriving home a few hours after booking to find a folder of comparable properties, research on their own home, and a personalised letter from their agent.",
+        ],
+      },
+    ],
+  },
+  {
+    slug: "winning-valuations",
+    room: "Living room",
+    title: "Winning valuations",
+    conceit: "Business is won sitting on the vendor's sofa.",
+    assignment: "human",
+    summary:
+      "Converting the valuation appointment into a signed instruction. The moment a vendor decides who they trust with the biggest transaction of their life.",
+    rect: { x: 360, y: 190, w: 300, h: 310 },
+    blocks: [
+      { kind: "h", text: "What the job is" },
+      {
+        kind: "lead",
+        text: "Converting the valuation appointment into a signed instruction.",
+      },
+      {
+        kind: "callout",
+        tone: "human",
+        label: "Why it sits here",
+        body: "This is persuasion, reassurance and reading the room in someone's living room. It is the moment a vendor decides who they trust with the biggest transaction of their life. That has to be a person.",
+      },
+      {
+        kind: "callout",
+        tone: "ai",
+        label: "Where AI fits in",
+        body: "The follow-up, particularly for lower-leverage leads. Vendors who are not planning to sell for six months, or who are currently on the market with another agent, rarely get consistent attention because they are not urgent. AI can run tailored, high-touch follow-up over long periods so that no warm lead goes cold simply because nobody had time to keep in touch.",
+      },
+    ],
+  },
+  {
+    slug: "taking-on-properties",
+    room: "Study",
+    title: "Taking on properties",
+    conceit: "The paperwork room: instructions become live listings here.",
+    assignment: "ai",
+    summary:
+      "Everything between a signed marketing agreement and a property being fully live on Rightmove. Pure process — the strongest case for AI-led operation.",
+    rect: { x: 60, y: 500, w: 200, h: 310 },
+    planLabel: ["Taking on", "properties"],
+    blocks: [
+      { kind: "h", text: "What the job is" },
+      {
+        kind: "lead",
+        text: "Everything between a signed marketing agreement and a property being fully live on Rightmove.",
+      },
+      { kind: "h", text: "How it works today" },
+      {
+        kind: "list",
+        ordered: true,
+        title: "The list is well defined and mostly administrative",
+        items: [
+          "Writing the property details",
+          "Arranging professional photography, plus a walkthrough or video",
+          "Getting an EPC and a floorplan produced",
+          "Posting to the portals through the CRM integration with Rightmove, Zoopla and OnTheMarket",
+          "Working out access arrangements for viewings",
+          "Running AML checks, usually through an outsourced provider",
+        ],
+      },
+      {
+        kind: "callout",
+        tone: "ai",
+        label: "Why it sits here",
+        body: "This is process work with clear steps and few emotional stakes. Getting it done faster and more consistently is pure upside, and it frees the team to spend time where it counts.",
+      },
+      {
+        kind: "callout",
+        tone: "ai",
+        label: "Where AI fits in",
+        body: "Almost everywhere. Drafting the details, coordinating the photographer and the EPC, triggering the AML process, and pushing the listing live through the CRM can all be driven by AI — with a person simply signing off the finished listing.",
+      },
+    ],
+  },
+  {
+    slug: "marketing-properties",
+    room: "Kitchen",
+    title: "Marketing properties",
+    conceit: "The heart of the home — where demand gets generated.",
+    assignment: "ai",
+    summary:
+      "The ongoing lead generation that keeps viewings coming in for a listing. AI-led without being AI-only.",
+    rect: { x: 260, y: 500, w: 200, h: 310 },
+    planLabel: ["Marketing", "properties"],
+    blocks: [
+      { kind: "h", text: "What the job is" },
+      {
+        kind: "lead",
+        text: "The ongoing lead generation that keeps viewings coming in for a listing.",
+      },
+      { kind: "h", text: "How it works today" },
+      {
+        kind: "p",
+        text: "In practice this is a mix of portal management, social posting and applicant matching, wrapped around regular conversations with the vendor.",
+      },
+      {
+        kind: "callout",
+        tone: "ai",
+        label: "Why it sits here",
+        body: "The generation of demand is largely repeatable and data-driven, which makes it a strong fit for automation. But the vendor-facing judgement calls are not — so this job is AI-led without being AI-only.",
+      },
+      {
+        kind: "callout",
+        tone: "ai",
+        label: "Where AI fits in",
+        items: [
+          "Making sure the listing is pulling a healthy number of viewings from the portals, and flagging when it is not",
+          "Posting to social channels for awareness",
+          "Matching the property to relevant applicants and emailing them through the CRM",
+        ],
+      },
+      {
+        kind: "callout",
+        tone: "human",
+        label: "Still needs a person",
+        items: [
+          "Communicating progress to the vendor",
+          "Negotiating a price reduction when viewings dry up, or when the vendor's own urgency rises because they have found somewhere to buy",
+          "Negotiating a renewal when the contract is coming to an end",
+        ],
+      },
+    ],
+  },
+  {
+    slug: "managing-viewings",
+    room: "Landing & bedrooms",
+    title: "Managing viewings",
+    conceit: "Walking buyers through the house, room by room.",
+    assignment: "hybrid",
+    summary:
+      "Everything from a viewing enquiry through to either feedback on the property or a negotiation on price. Qualifying and scheduling suit AI; the viewing itself stays human.",
+    rect: { x: 460, y: 500, w: 200, h: 310 },
+    planLabel: ["Managing", "viewings"],
+    blocks: [
+      { kind: "h", text: "What the job is" },
+      {
+        kind: "lead",
+        text: "Everything from a viewing enquiry through to either feedback on the property or a negotiation on price.",
+      },
+      { kind: "h", text: "How it works today" },
+      {
+        kind: "p",
+        text: "As with valuations, most viewing requests arrive in the CRM from the website or the portals. The difference is that these are seen as lower-value leads, so agencies worry less about the personal touch and are much more open to automation here.",
+      },
+      {
+        kind: "p",
+        text: "To book a viewing you first qualify the buyer with a few questions: do they have a mortgage in principle, can they afford this property, and do they have something of their own to sell in the area? These questions do more than screen a buyer — they surface value in other directions.",
+      },
+      {
+        kind: "stat",
+        value: "£400 — £5,000",
+        title: "What the qualifying questions are worth",
+        note: "A buyer without a mortgage is a referral worth around £400. A buyer with a property to sell is a potential valuation worth around £5,000. Asking them consistently adds up.",
+      },
+      {
+        kind: "p",
+        text: "Once a buyer is qualified, scheduling tends to be very manual. The CRM holds the access arrangements, but the edge cases get messy. Tenanted flats need sign-off from both the tenant and the landlord, and the tenant is often uncooperative. Keys are a logistical headache when you hold a single set but two different agents need to show the property at different times of day. Most agencies end up playing phone tennis with everyone involved to pin a slot down.",
+      },
+      {
+        kind: "p",
+        text: "Once the viewing happens, a negotiator meets the buyer at the property, conducts the viewing, and then chases them over the following days for feedback. That feedback goes to the vendor, usually by phone, and it often does double duty as the evidence base for a future conversation about reducing the price.",
+      },
+      {
+        kind: "callout",
+        tone: "hybrid",
+        label: "Why it sits here",
+        body: "The qualifying and scheduling are repetitive and rules-based, which suits AI. The viewing itself, and the feedback conversation with the vendor, still benefit from a human.",
+      },
+      {
+        kind: "callout",
+        tone: "ai",
+        label: "Where AI fits in",
+        items: [
+          "Reaching out to and qualifying prospects the moment they enquire, and automatically capturing referral opportunities such as mortgage introductions and valuation leads",
+          "Gathering feedback after viewings, chasing consistently so that nothing slips",
+        ],
+      },
+    ],
+  },
+  {
+    slug: "negotiating-the-sale",
+    room: "Dining room",
+    title: "Negotiating the sale",
+    conceit: "Offers get made — and improved — across this table.",
+    assignment: "human",
+    summary:
+      "Taking an offer to the vendor and advising them whether to accept it. Life-changing news, delivered by a person.",
+    rect: { x: 60, y: 810, w: 300, h: 320 },
+    blocks: [
+      { kind: "h", text: "What the job is" },
+      {
+        kind: "lead",
+        text: "Taking an offer to the vendor and advising them whether to accept it.",
+      },
+      { kind: "h", text: "How it works today" },
+      {
+        kind: "p",
+        text: "When a viewing produces an offer, the agency presents it to the vendor with a recommendation. This should almost always be done by a person, on the phone. It is life-changing news, and it deserves a personal touch. It is also a legal requirement to present every offer, so the agent has to make the call regardless.",
+      },
+      {
+        kind: "p",
+        text: "A good agency tries to close on terms that both sides are comfortable with, rather than squeezing for the last pound. You will be working with both parties for roughly three more months before completion, and when someone feels they were pushed on price, it tends to resurface later. The vendor takes the lightbulbs on the way out, or the buyer walks because the white goods were not included.",
+      },
+      {
+        kind: "callout",
+        tone: "human",
+        label: "Why it sits here",
+        body: "This is judgement, advice and emotional weight all at once, on a decision that changes people's lives. It stays with a person.",
+      },
+      {
+        kind: "callout",
+        tone: "ai",
+        label: "Where AI fits in",
+        body: "Very little on the actual negotiation, by design. The most it should do is prepare the ground: pulling together the comparable evidence and the viewing feedback so the agent walks into the call fully briefed.",
+      },
+    ],
+  },
+  {
+    slug: "progressing-the-sale",
+    room: "Utility room",
+    title: "Progressing the sale",
+    conceit:
+      "The plumbing of the deal — unglamorous, and where everything gets stuck.",
+    assignment: "hybrid",
+    summary:
+      "Shepherding an agreed sale from acceptance to the point where it is ready to complete. The chase is mechanical; the reassurance is not.",
+    rect: { x: 360, y: 810, w: 300, h: 320 },
+    blocks: [
+      { kind: "h", text: "What the job is" },
+      {
+        kind: "lead",
+        text: "Shepherding an agreed sale from acceptance through to the point where it is ready to complete.",
+      },
+      { kind: "h", text: "How it works today" },
+      {
+        kind: "p",
+        text: "Once a sale is agreed and both parties are happy, the solicitors get involved. Both sides instruct one, and some agencies have partner firms that pay referral fees, so there is another commercial opportunity here.",
+      },
+      {
+        kind: "p",
+        text: "Progressing is essentially a chase. You work through a series of solicitors to find out who is currently blocking progress, then try to clear the blockage. The longer the chain, the more work it is. Today this is manual: emails and phone calls to a string of solicitors, roughly once every two weeks, and every time you chase them you update your vendor and buyer.",
+      },
+      {
+        kind: "p",
+        text: "The part that should not be automated is the communication with vendors and buyers. This period is highly stressful, and small things can blow a deal up. A first-time buyer who gets a survey back on an older house will often read lines like \u201cthe roof will need replacing at some point\u201d or \u201cthere may be damp, so you should get a specialist in.\u201d Experienced buyers know a survey is largely a surveyor covering themselves and are not put off. A first-time buyer can panic and pull out. The agent's job is to steady them, explain what the survey actually means, and make sure they have someone to talk to. Hand that to an AI and you risk doing real damage to the conversion rate of the business.",
+      },
+      {
+        kind: "callout",
+        tone: "hybrid",
+        label: "Why it sits here",
+        body: "The chasing is repetitive coordination, which AI does well. The reassurance is delicate human work that protects the deal.",
+      },
+      {
+        kind: "callout",
+        tone: "ai",
+        label: "Where AI fits in",
+        body: "The mechanical side of progression: tracking who owes what across the chain, chasing solicitors on a reliable cadence, and surfacing the current blocker so the agent always knows the state of play. The human keeps the vendor and buyer conversations.",
+      },
+    ],
+  },
+  {
+    slug: "completing-the-sale",
+    room: "Back garden",
+    title: "Completing the sale",
+    conceit:
+      "Sold board up. Keys handed over. The tour ends where the next one begins.",
+    assignment: "human",
+    summary:
+      "Handing over the keys — the emotional high point of the whole process, and the start of a long relationship.",
+    outdoor: true,
+    rect: { x: 60, y: 1130, w: 600, h: 150 },
+    blocks: [
+      { kind: "h", text: "What the job is" },
+      { kind: "lead", text: "Handing over the keys." },
+      { kind: "h", text: "How it works today" },
+      {
+        kind: "p",
+        text: "This is the best part of the job, and it should feel like it. Handing someone the keys to their first home is a moment worth marking. Buyers do not pay the agency's bills, but they are an excellent long-term investment. A bottle of prosecco and a card when they move in buys a lot of loyalty, and often a future instruction.",
+      },
+      {
+        kind: "callout",
+        tone: "human",
+        label: "Why it sits here",
+        body: "It is the emotional high point of the whole process and the start of a long relationship. This is entirely a human moment.",
+      },
+      {
+        kind: "callout",
+        tone: "ai",
+        label: "Where AI fits in",
+        body: "Only in the background: making sure the small touches actually happen, prompting the card and the gift, and logging the new owner for future contact. The moment itself belongs to a person.",
+      },
+    ],
+  },
+];
+
+export function roomBySlug(slug: string): Room | undefined {
+  return ROOMS.find((r) => r.slug === slug);
+}
+
+/* ------------------------------------------------------------------ */
+/* The people — seats on the org section, each with its own page.      */
+/* Content inferred from the jobs document: what each seat keeps, and  */
+/* what it hands to the agent layer.                                   */
+/* ------------------------------------------------------------------ */
+
+export interface Seat {
+  slug: string;
+  title: string;
+  /** Label lines on the org drawing. */
+  planLabel: string[];
+  /** Which jobs on the floor plan this seat owns. */
+  owns: string;
+  summary: string;
+  blocks: Block[];
+  /** Rect on the people drawing, in viewBox units. */
+  rect: { x: number; y: number; w: number; h: number };
+}
+
+export const PEOPLE_PLAN = { w: 720, h: 640 } as const;
+
+export const SEATS: Seat[] = [
+  {
+    slug: "branch-manager",
+    title: "Branch manager",
+    planLabel: ["Branch", "manager"],
+    owns: "Oversees every job · leads the hard conversations",
+    summary:
+      "Owns the branch: the P&L, the standards, and the judgement calls nobody else should make.",
+    rect: { x: 280, y: 40, w: 160, h: 104 },
+    blocks: [
+      {
+        kind: "lead",
+        text: "The branch manager owns the outcome: instructions won, sales completed, and the reputation of the office. In the new model this seat changes least in what it is for — and most in how it spends the day.",
+      },
+      { kind: "h", text: "What the seat keeps" },
+      {
+        kind: "list",
+        items: [
+          "The hard conversations — price reductions when viewings dry up, contract renewals, and rescuing deals that are wobbling",
+          "Pricing strategy and the recommendation on every offer",
+          "Hiring, coaching, and the quality of every human touch the branch makes",
+        ],
+      },
+      { kind: "h", text: "What moves to the agent layer" },
+      {
+        kind: "list",
+        items: [
+          "Pipeline visibility — the live state of every valuation, listing and chain, without asking anyone",
+          "Chasing the team for updates",
+          "Reporting and admin",
+        ],
+      },
+      {
+        kind: "callout",
+        tone: "ai",
+        label: "Management by exception",
+        body: "A manager's day is currently interrupts and status-chasing. With the agent layer holding a live picture of every valuation, listing and chain, the manager steps in where a human changes the outcome — not to find out what is going on.",
+      },
+    ],
+  },
+  {
+    slug: "valuation-manager",
+    title: "Valuation manager",
+    planLabel: ["Valuation", "manager"],
+    owns: "Owns jobs 01–02 · booking and winning valuations",
+    summary:
+      "Wins instructions: first through the door, best prepared in the living room.",
+    rect: { x: 20, y: 224, w: 160, h: 116 },
+    blocks: [
+      {
+        kind: "lead",
+        text: "The valuation manager carries the two jobs that decide whether the agency grows: booking valuations and winning them. The seat is pure sales — and it is the most human seat in the branch.",
+      },
+      { kind: "h", text: "What the seat keeps" },
+      {
+        kind: "list",
+        items: [
+          "The appointment itself — persuasion, reassurance and reading the room in someone's living room",
+          "Judgement on pricing: saying a number the vendor wants to hear, and being able to stand behind it",
+          "Re-engaging warm vendors personally, at the right moment",
+        ],
+      },
+      { kind: "h", text: "What moves to the agent layer" },
+      {
+        kind: "list",
+        items: [
+          "The 60-second first touch on every enquiry — personal, specific to the house, and always first",
+          "The valuation pack: comparable properties, research on the vendor's home, and a personalised letter, prepared the same day",
+          "Long-running follow-up on lower-leverage leads — vendors six months from selling, or currently with a competitor",
+        ],
+      },
+      {
+        kind: "callout",
+        tone: "ai",
+        label: "No warm lead goes cold",
+        body: "Vendors who are not urgent rarely get consistent attention. The agent layer runs tailored, high-touch follow-up over long periods, so the valuation manager walks into conversations the moment they become winnable.",
+      },
+    ],
+  },
+  {
+    slug: "sales-negotiator",
+    title: "Sales negotiator",
+    planLabel: ["Sales", "negotiator"],
+    owns: "Owns jobs 05–06 · viewings and the offer",
+    summary:
+      "Turns enquiries into offers: the viewing, the feedback call, and the referral value nobody captures consistently.",
+    rect: { x: 195, y: 224, w: 160, h: 116 },
+    blocks: [
+      {
+        kind: "lead",
+        text: "The negotiator owns the buyer's journey: from viewing enquiry through to an offer on the table. It is the seat with the most repetitive admin around the most human moments.",
+      },
+      { kind: "h", text: "What the seat keeps" },
+      {
+        kind: "list",
+        items: [
+          "Conducting the viewing — walking the buyer through the house and reading what they actually think",
+          "The feedback conversation with the vendor, which doubles as the evidence base for price conversations",
+          "Presenting offers: life-changing news, delivered personally, as the law requires",
+        ],
+      },
+      { kind: "h", text: "What moves to the agent layer" },
+      {
+        kind: "list",
+        items: [
+          "Qualifying every buyer the moment they enquire: mortgage in principle, affordability, something to sell",
+          "Capturing the referral value in those answers — a mortgage introduction is worth around £400, a buyer with a home to sell is a ~£5,000 valuation lead",
+          "Scheduling: the tenant, landlord and key logistics that today mean phone tennis",
+          "Chasing viewing feedback consistently, so nothing slips",
+        ],
+      },
+      {
+        kind: "callout",
+        tone: "ai",
+        label: "Qualification that never sleeps",
+        body: "Viewing enquiries are treated as lower-value leads, so the personal touch matters less and automation is welcome. The agent layer qualifies instantly, books around everyone's constraints, and hands the negotiator a diary full of qualified buyers.",
+      },
+    ],
+  },
+  {
+    slug: "sales-progressor",
+    title: "Sales progressor",
+    planLabel: ["Sales", "progressor"],
+    owns: "Owns job 07 · sale agreed to ready-to-complete",
+    summary:
+      "Holds agreed sales together for the three months between yes and keys.",
+    rect: { x: 370, y: 224, w: 160, h: 116 },
+    blocks: [
+      {
+        kind: "lead",
+        text: "The progressor runs the stretch where roughly three months of solicitors, surveys and chains sit between an agreed sale and completion. The job is a chase and a counselling service, run side by side.",
+      },
+      { kind: "h", text: "What the seat keeps" },
+      {
+        kind: "list",
+        items: [
+          "Reassuring vendors and buyers through the most stressful period of the transaction",
+          "The survey conversation — steadying a first-time buyer who has just read \u201cthe roof will need replacing at some point\u201d, before they panic and pull out",
+          "Judgement on when a chain needs escalating and when a deal needs saving",
+        ],
+      },
+      { kind: "h", text: "What moves to the agent layer" },
+      {
+        kind: "list",
+        items: [
+          "Chasing the string of solicitors on a reliable cadence, rather than roughly once a fortnight",
+          "Tracking who owes what across the chain and surfacing the current blocker",
+          "Drafting the update for the vendor and buyer after every chase — for the progressor to deliver",
+        ],
+      },
+      {
+        kind: "callout",
+        tone: "ai",
+        label: "The chase, automated",
+        body: "The mechanical side of progression is coordination, which AI does well. The human keeps every vendor and buyer conversation — hand those to a machine and you risk real damage to the conversion rate of the business.",
+      },
+    ],
+  },
+  {
+    slug: "admin-marketing",
+    title: "Admin & marketing",
+    planLabel: ["Admin &", "marketing"],
+    owns: "Owns jobs 03–04 · listings live, demand generated",
+    summary:
+      "Runs the machine that takes listings live and keeps viewings coming — the seat the agent layer changes most.",
+    rect: { x: 545, y: 224, w: 160, h: 116 },
+    blocks: [
+      {
+        kind: "lead",
+        text: "This seat owns the two AI-led jobs: taking on properties and marketing them. It changes more than any other — from producing the work to directing it.",
+      },
+      { kind: "h", text: "What the seat keeps" },
+      {
+        kind: "list",
+        items: [
+          "Final sign-off on every listing before it goes live",
+          "The quality bar: photography, details and brand across every channel",
+          "Escalating listings that are not performing to the humans who own the vendor conversation",
+        ],
+      },
+      { kind: "h", text: "What moves to the agent layer" },
+      {
+        kind: "list",
+        items: [
+          "Drafting details, booking the photographer, ordering the EPC and floorplan, triggering AML",
+          "Pushing listings live through the CRM to Rightmove, Zoopla and OnTheMarket",
+          "Monitoring portal performance and flagging listings that are not pulling viewings",
+          "Social posting and matching properties to applicants by email",
+        ],
+      },
+      {
+        kind: "callout",
+        tone: "ai",
+        label: "From doing to directing",
+        body: "Everything here is process work with clear steps and few emotional stakes. Done by agents, it happens faster and more consistently — and the seat becomes an editor of machine output rather than a producer of admin.",
+      },
+    ],
+  },
+];
+
+export function seatBySlug(slug: string): Seat | undefined {
+  return SEATS.find((s) => s.slug === slug);
+}
