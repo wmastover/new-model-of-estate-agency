@@ -14,7 +14,7 @@ import {
   fillFor,
 } from "./plan-style";
 
-/** Room fill encodes who leads the work — the plan's key signal. */
+/** Room fill encodes who leads the work: the plan's key signal. */
 function roomFill(room: Room): string {
   return fillFor(room.assignment, "hybrid-hatch");
 }
@@ -126,7 +126,7 @@ export default function FloorPlan({ active, onSelect, mini }: FloorPlanProps) {
                 >
                   {num}
                 </text>
-                {/* label — the job itself, set like a room name on a plan */}
+                {/* label: the job itself, set like a room name on a plan */}
                 {(room.planLabel ?? [room.title]).map((line, li, lines) => (
                   <text
                     key={li}
@@ -200,7 +200,7 @@ export default function FloorPlan({ active, onSelect, mini }: FloorPlanProps) {
         );
       })}
 
-      {/* House outline — drawn on top so walls read solid */}
+      {/* House outline, drawn on top so walls read solid */}
       <rect
         x="60"
         y="190"
@@ -214,7 +214,7 @@ export default function FloorPlan({ active, onSelect, mini }: FloorPlanProps) {
 
       {!mini && (
         <g pointerEvents="none">
-          {/* Front door — gap in the top wall + swing arc */}
+          {/* Front door: gap in the top wall + swing arc */}
           <rect x="226" y="186" width="48" height="8" fill="#f4f3f0" />
           <line x1="230" y1="190" x2="230" y2="234" stroke={BLUE} strokeWidth="2" />
           <path d="M 230 234 A 44 44 0 0 0 274 190" fill="none" stroke={BLUE} strokeWidth="1.2" strokeDasharray="3 4" />
@@ -273,19 +273,19 @@ export default function FloorPlan({ active, onSelect, mini }: FloorPlanProps) {
             AIP
           </text>
 
-          {/* Sofa — winning valuations happens on the vendor's sofa */}
+          {/* Sofa: winning valuations happens on the vendor's sofa */}
           <rect x="445" y="424" width="150" height="46" fill="none" stroke={HAIR} strokeWidth="1" />
           <line x1="445" y1="436" x2="595" y2="436" stroke={HAIR_SOFT} strokeWidth="1" />
 
-          {/* Desk — taking on properties is the paperwork */}
+          {/* Desk: taking on properties is the paperwork */}
           <rect x="82" y="530" width="100" height="36" fill="none" stroke={HAIR} strokeWidth="1" />
 
-          {/* Counter + hobs — marketing is the kitchen of the operation */}
+          {/* Counter + hobs: marketing is the kitchen of the operation */}
           <rect x="268" y="508" width="184" height="28" fill="none" stroke={HAIR} strokeWidth="1" />
           <circle cx="304" cy="522" r="8" fill="none" stroke={HAIR} strokeWidth="1" />
           <circle cx="330" cy="522" r="8" fill="none" stroke={HAIR} strokeWidth="1" />
 
-          {/* Stairs — viewings walk buyers through the house */}
+          {/* Stairs: viewings walk buyers through the house */}
           {[0, 1, 2, 3, 4, 5].map((s) => (
             <line
               key={s}
@@ -299,10 +299,10 @@ export default function FloorPlan({ active, onSelect, mini }: FloorPlanProps) {
           ))}
           <line x1="513" y1="532" x2="513" y2="587" stroke={HAIR} strokeWidth="1" />
 
-          {/* Table — offers happen across it */}
+          {/* Table: offers happen across it */}
           <rect x="150" y="856" width="120" height="80" fill="none" stroke={HAIR} strokeWidth="1" />
 
-          {/* Machine — progression is the laundry cycle of the deal */}
+          {/* Machine: progression is the laundry cycle of the deal */}
           <rect x="592" y="838" width="42" height="42" fill="none" stroke={HAIR} strokeWidth="1" />
           <circle cx="613" cy="859" r="12" fill="none" stroke={HAIR} strokeWidth="1" />
 
@@ -311,7 +311,7 @@ export default function FloorPlan({ active, onSelect, mini }: FloorPlanProps) {
           <line x1="500" y1="1130" x2="500" y2="1174" stroke={BLUE} strokeWidth="2" />
           <path d="M 500 1174 A 44 44 0 0 1 544 1130" fill="none" stroke={BLUE} strokeWidth="1.2" strokeDasharray="3 4" />
 
-          {/* Sold board in the back garden — the tour's full stop */}
+          {/* Sold board in the back garden: the tour's full stop */}
           <line x1="580" y1="1262" x2="580" y2="1218" stroke={INK} strokeWidth="2.5" />
           <rect x="543" y="1160" width="74" height="58" fill="#0f1011" stroke={INK} strokeWidth="1" />
           <text
@@ -344,7 +344,7 @@ export default function FloorPlan({ active, onSelect, mini }: FloorPlanProps) {
             AIP
           </text>
 
-          {/* Drawing annotation — architect's margin note */}
+          {/* Drawing annotation: architect's margin note */}
           <text
             x="688"
             y="650"
@@ -358,7 +358,7 @@ export default function FloorPlan({ active, onSelect, mini }: FloorPlanProps) {
               fill: INK_300,
             }}
           >
-            AIP — Plan 01 — A new model of estate agency — not to scale
+            AIP · Plan 01 · A new model of estate agency · not to scale
           </text>
 
           {/* North marker */}

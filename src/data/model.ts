@@ -1,5 +1,5 @@
 /**
- * A New Model of Estate Agency — content model.
+ * A New Model of Estate Agency: content model.
  *
  * Working draft. Section (room) structure is stable; copy lives in the
  * `blocks` arrays, so edits should mostly happen there.
@@ -44,7 +44,7 @@ export const LAYERS: {
     num: "01",
     label: "The mechanics",
     description:
-      "The jobs to be done — how the business works, room by room, and where AI takes the work.",
+      "The jobs to be done: how the business works, room by room, and where AI takes the work.",
     drafted: true,
   },
   {
@@ -52,7 +52,7 @@ export const LAYERS: {
     num: "02",
     label: "The people",
     description:
-      "The roles — who sits where in a modern agency, and how the agent layer changes every seat.",
+      "The roles: who sits where in a modern agency, and how the agent layer changes every seat.",
     drafted: true,
   },
   {
@@ -60,7 +60,7 @@ export const LAYERS: {
     num: "03",
     label: "The interfaces",
     description:
-      "The wiring — how AI connects the agency to boards, solicitors and mortgage advisors, and monetises those relationships.",
+      "The wiring: how AI connects the agency to boards, solicitors and mortgage advisors, and monetises those relationships.",
     drafted: false,
   },
 ];
@@ -82,7 +82,7 @@ export type Block =
 
 export interface Room {
   slug: string;
-  /** Room in the property metaphor — kept as internal flavour, not displayed. */
+  /** Room in the property metaphor. Kept as internal flavour, not displayed. */
   room: string;
   /** The actual job-to-be-done / section title. */
   title: string;
@@ -91,7 +91,7 @@ export interface Room {
   assignment: Assignment | null;
   summary: string;
   blocks: Block[];
-  /** Section not yet written — rendered as "under renovation". */
+  /** Section not yet written, rendered as "under renovation". */
   unfinished?: boolean;
   /** Rect on the floor plan, in viewBox units. */
   rect: { x: number; y: number; w: number; h: number };
@@ -111,7 +111,7 @@ export const ROOMS: Room[] = [
     conceit: "Every viewing starts at the kerb. So does this document.",
     assignment: null,
     summary:
-      "Estate agency is approaching its first real inflection point since the portals arrived. Here is the whole business, split into eight jobs — and a framework for who should do each one.",
+      "Estate agency is approaching its first real inflection point since the portals arrived. Here is the whole business, split into eight jobs, with a framework for who should do each one.",
     outdoor: true,
     rect: { x: 60, y: 30, w: 600, h: 160 },
     blocks: [
@@ -168,13 +168,13 @@ export const ROOMS: Room[] = [
     conceit: "The valuation is how an agency gets through the front door.",
     assignment: "hybrid",
     summary:
-      "Getting a vendor to agree to a face-to-face valuation appointment — arguably the single most valuable activity an agency does. Everything downstream depends on it.",
+      "Getting a vendor to agree to a face-to-face valuation appointment: arguably the single most valuable activity an agency does. Everything downstream depends on it.",
     rect: { x: 60, y: 190, w: 300, h: 310 },
     blocks: [
       { kind: "h", text: "What the job is" },
       {
         kind: "lead",
-        text: "Getting a vendor to agree to a face-to-face valuation appointment. This is arguably the single most valuable activity an agency does — the valuation is your best chance to win a vendor's business, and everything downstream depends on it.",
+        text: "Getting a vendor to agree to a face-to-face valuation appointment. This is arguably the single most valuable activity an agency does. The valuation is your best chance to win a vendor's business, and everything downstream depends on it.",
       },
       {
         kind: "stat",
@@ -186,22 +186,22 @@ export const ROOMS: Room[] = [
       {
         kind: "list",
         ordered: true,
-        title: "Where valuations come from — a good agency works all of them",
+        title: "Where valuations come from: a good agency works all of them",
         items: [
-          "Existing connections — for example a vendor who came back because you sold their house five years ago",
-          "Touting — mail-outs to houses currently on the market with a competitor",
+          "Existing connections: for example a vendor who came back because you sold their house five years ago",
+          "Touting: mail-outs to houses currently on the market with a competitor",
           "Mail-outs to the neighbours of houses you have sold",
           "Website enquiries, which are less common than they used to be",
-          "Portal enquiries from Rightmove, Zoopla and OnTheMarket — these usually land with around six agents at once, so they are highly competitive",
-          "Turning a buyer into a seller — someone viewing one of your listings has their own house to sell",
-          "Brand awareness — the high street shop, sold boards, local newspapers, market update emails, your listings on the portals, and your Instagram and Facebook presence",
+          "Portal enquiries from Rightmove, Zoopla and OnTheMarket: these usually land with around six agents at once, so they are highly competitive",
+          "Turning a buyer into a seller: someone viewing one of your listings has their own house to sell",
+          "Brand awareness: the high street shop, sold boards, local newspapers, market update emails, your listings on the portals, and your Instagram and Facebook presence",
           "Re-engaging vendors who instructed a competitor",
           "Direct phone calls into the office",
         ],
       },
       {
         kind: "p",
-        text: "Enquiries from your website and the portals usually pull through into an inbox on the CRM. Most agents will call the vendor the moment they see the enquiry to try to book a time. A high-touch, personal approach wins more business here, so agents compete to be first to make contact — especially on portal enquiries, where the competition is fiercest.",
+        text: "Enquiries from your website and the portals usually pull through into an inbox on the CRM. Most agents will call the vendor the moment they see the enquiry to try to book a time. A high-touch, personal approach wins more business here, so agents compete to be first to make contact, especially on portal enquiries, where the competition is fiercest.",
       },
       {
         kind: "callout",
@@ -214,7 +214,7 @@ export const ROOMS: Room[] = [
         tone: "ai",
         label: "Where AI fits in",
         items: [
-          "A personal holding message within 60 seconds of an enquiry landing. It can reference the specific house, confirm the agent has looked at it, and promise a call as soon as possible. You will not always be able to call immediately, but you can guarantee the vendor hears from you first — with something that feels considered rather than automated.",
+          "A personal holding message within 60 seconds of an enquiry landing. It can reference the specific house, confirm the agent has looked at it, and promise a call as soon as possible. You will not always be able to call immediately, but you can guarantee the vendor hears from you first, with something that feels considered rather than automated.",
           "A genuinely personalised valuation pack. One local agency we know leaves a valuation pack on the doorstep of every booked valuation, the same day the enquiry comes in. Today that pack is a generic company document that walks through the process. AI can make it ten times better: picture a vendor arriving home a few hours after booking to find a folder of comparable properties, research on their own home, and a personalised letter from their agent.",
         ],
       },
@@ -256,7 +256,7 @@ export const ROOMS: Room[] = [
     conceit: "The paperwork room: instructions become live listings here.",
     assignment: "ai",
     summary:
-      "Everything between a signed marketing agreement and a property being fully live on Rightmove. Pure process — the strongest case for AI-led operation.",
+      "Everything between a signed marketing agreement and a property being fully live on Rightmove. Pure process, and the strongest case for AI-led operation.",
     rect: { x: 60, y: 500, w: 200, h: 310 },
     planLabel: ["Taking on", "properties"],
     blocks: [
@@ -289,7 +289,7 @@ export const ROOMS: Room[] = [
         kind: "callout",
         tone: "ai",
         label: "Where AI fits in",
-        body: "Almost everywhere. Drafting the details, coordinating the photographer and the EPC, triggering the AML process, and pushing the listing live through the CRM can all be driven by AI — with a person simply signing off the finished listing.",
+        body: "Almost everywhere. Drafting the details, coordinating the photographer and the EPC, triggering the AML process, and pushing the listing live through the CRM can all be driven by AI, with a person simply signing off the finished listing.",
       },
     ],
   },
@@ -297,7 +297,7 @@ export const ROOMS: Room[] = [
     slug: "marketing-properties",
     room: "Kitchen",
     title: "Marketing properties",
-    conceit: "The heart of the home — where demand gets generated.",
+    conceit: "The heart of the home: where demand gets generated.",
     assignment: "ai",
     summary:
       "The ongoing lead generation that keeps viewings coming in for a listing. AI-led without being AI-only.",
@@ -318,7 +318,7 @@ export const ROOMS: Room[] = [
         kind: "callout",
         tone: "ai",
         label: "Why it sits here",
-        body: "The generation of demand is largely repeatable and data-driven, which makes it a strong fit for automation. But the vendor-facing judgement calls are not — so this job is AI-led without being AI-only.",
+        body: "The generation of demand is largely repeatable and data-driven, which makes it a strong fit for automation. But the vendor-facing judgement calls are not, so this job is AI-led without being AI-only.",
       },
       {
         kind: "callout",
@@ -365,11 +365,11 @@ export const ROOMS: Room[] = [
       },
       {
         kind: "p",
-        text: "To book a viewing you first qualify the buyer with a few questions: do they have a mortgage in principle, can they afford this property, and do they have something of their own to sell in the area? These questions do more than screen a buyer — they surface value in other directions.",
+        text: "To book a viewing you first qualify the buyer with a few questions: do they have a mortgage in principle, can they afford this property, and do they have something of their own to sell in the area? These questions do more than screen a buyer. They surface value in other directions.",
       },
       {
         kind: "stat",
-        value: "£400 — £5,000",
+        value: "£400 to £5,000",
         title: "What the qualifying questions are worth",
         note: "A buyer without a mortgage is a referral worth around £400. A buyer with a property to sell is a potential valuation worth around £5,000. Asking them consistently adds up.",
       },
@@ -402,7 +402,7 @@ export const ROOMS: Room[] = [
     slug: "negotiating-the-sale",
     room: "Dining room",
     title: "Negotiating the sale",
-    conceit: "Offers get made — and improved — across this table.",
+    conceit: "Offers get made, and improved, across this table.",
     assignment: "human",
     summary:
       "Taking an offer to the vendor and advising them whether to accept it. Life-changing news, delivered by a person.",
@@ -441,7 +441,7 @@ export const ROOMS: Room[] = [
     room: "Utility room",
     title: "Progressing the sale",
     conceit:
-      "The plumbing of the deal — unglamorous, and where everything gets stuck.",
+      "The plumbing of the deal: unglamorous, and where everything gets stuck.",
     assignment: "hybrid",
     summary:
       "Shepherding an agreed sale from acceptance to the point where it is ready to complete. The chase is mechanical; the reassurance is not.",
@@ -487,7 +487,7 @@ export const ROOMS: Room[] = [
       "Sold board up. Keys handed over. The tour ends where the next one begins.",
     assignment: "human",
     summary:
-      "Handing over the keys — the emotional high point of the whole process, and the start of a long relationship.",
+      "Handing over the keys: the emotional high point of the whole process, and the start of a long relationship.",
     outdoor: true,
     rect: { x: 60, y: 1130, w: 600, h: 150 },
     blocks: [
@@ -519,7 +519,7 @@ export function roomBySlug(slug: string): Room | undefined {
 }
 
 /* ------------------------------------------------------------------ */
-/* The people — seats on the org section, each with its own page.      */
+/* The people: seats on the org section, each with its own page.       */
 /* Content inferred from the jobs document: what each seat keeps, and  */
 /* what it hands to the agent layer.                                   */
 /* ------------------------------------------------------------------ */
@@ -551,13 +551,13 @@ export const SEATS: Seat[] = [
     blocks: [
       {
         kind: "lead",
-        text: "The branch manager owns the outcome: instructions won, sales completed, and the reputation of the office. In the new model this seat changes least in what it is for — and most in how it spends the day.",
+        text: "The branch manager owns the outcome: instructions won, sales completed, and the reputation of the office. In the new model this seat changes least in what it is for, and most in how it spends the day.",
       },
       { kind: "h", text: "What the seat keeps" },
       {
         kind: "list",
         items: [
-          "The hard conversations — price reductions when viewings dry up, contract renewals, and rescuing deals that are wobbling",
+          "The hard conversations: price reductions when viewings dry up, contract renewals, and rescuing deals that are wobbling",
           "Pricing strategy and the recommendation on every offer",
           "Hiring, coaching, and the quality of every human touch the branch makes",
         ],
@@ -566,7 +566,7 @@ export const SEATS: Seat[] = [
       {
         kind: "list",
         items: [
-          "Pipeline visibility — the live state of every valuation, listing and chain, without asking anyone",
+          "Pipeline visibility: the live state of every valuation, listing and chain, without asking anyone",
           "Chasing the team for updates",
           "Reporting and admin",
         ],
@@ -575,7 +575,7 @@ export const SEATS: Seat[] = [
         kind: "callout",
         tone: "ai",
         label: "Management by exception",
-        body: "A manager's day is currently interrupts and status-chasing. With the agent layer holding a live picture of every valuation, listing and chain, the manager steps in where a human changes the outcome — not to find out what is going on.",
+        body: "A manager's day is currently interrupts and status-chasing. With the agent layer holding a live picture of every valuation, listing and chain, the manager steps in where a human changes the outcome, not to find out what is going on.",
       },
     ],
   },
@@ -590,13 +590,13 @@ export const SEATS: Seat[] = [
     blocks: [
       {
         kind: "lead",
-        text: "The valuation manager carries the two jobs that decide whether the agency grows: booking valuations and winning them. The seat is pure sales — and it is the most human seat in the branch.",
+        text: "The valuation manager carries the two jobs that decide whether the agency grows: booking valuations and winning them. The seat is pure sales, and it is the most human seat in the branch.",
       },
       { kind: "h", text: "What the seat keeps" },
       {
         kind: "list",
         items: [
-          "The appointment itself — persuasion, reassurance and reading the room in someone's living room",
+          "The appointment itself: persuasion, reassurance and reading the room in someone's living room",
           "Judgement on pricing: saying a number the vendor wants to hear, and being able to stand behind it",
           "Re-engaging warm vendors personally, at the right moment",
         ],
@@ -605,9 +605,9 @@ export const SEATS: Seat[] = [
       {
         kind: "list",
         items: [
-          "The 60-second first touch on every enquiry — personal, specific to the house, and always first",
+          "The 60-second first touch on every enquiry: personal, specific to the house, and always first",
           "The valuation pack: comparable properties, research on the vendor's home, and a personalised letter, prepared the same day",
-          "Long-running follow-up on lower-leverage leads — vendors six months from selling, or currently with a competitor",
+          "Long-running follow-up on lower-leverage leads: vendors six months from selling, or currently with a competitor",
         ],
       },
       {
@@ -635,7 +635,7 @@ export const SEATS: Seat[] = [
       {
         kind: "list",
         items: [
-          "Conducting the viewing — walking the buyer through the house and reading what they actually think",
+          "Conducting the viewing: walking the buyer through the house and reading what they actually think",
           "The feedback conversation with the vendor, which doubles as the evidence base for price conversations",
           "Presenting offers: life-changing news, delivered personally, as the law requires",
         ],
@@ -645,7 +645,7 @@ export const SEATS: Seat[] = [
         kind: "list",
         items: [
           "Qualifying every buyer the moment they enquire: mortgage in principle, affordability, something to sell",
-          "Capturing the referral value in those answers — a mortgage introduction is worth around £400, a buyer with a home to sell is a ~£5,000 valuation lead",
+          "Capturing the referral value in those answers: a mortgage introduction is worth around £400, a buyer with a home to sell is a ~£5,000 valuation lead",
           "Scheduling: the tenant, landlord and key logistics that today mean phone tennis",
           "Chasing viewing feedback consistently, so nothing slips",
         ],
@@ -676,7 +676,7 @@ export const SEATS: Seat[] = [
         kind: "list",
         items: [
           "Reassuring vendors and buyers through the most stressful period of the transaction",
-          "The survey conversation — steadying a first-time buyer who has just read \u201cthe roof will need replacing at some point\u201d, before they panic and pull out",
+          "The survey conversation: steadying a first-time buyer who has just read \u201cthe roof will need replacing at some point\u201d, before they panic and pull out",
           "Judgement on when a chain needs escalating and when a deal needs saving",
         ],
       },
@@ -686,14 +686,14 @@ export const SEATS: Seat[] = [
         items: [
           "Chasing the string of solicitors on a reliable cadence, rather than roughly once a fortnight",
           "Tracking who owes what across the chain and surfacing the current blocker",
-          "Drafting the update for the vendor and buyer after every chase — for the progressor to deliver",
+          "Drafting the update for the vendor and buyer after every chase, for the progressor to deliver",
         ],
       },
       {
         kind: "callout",
         tone: "ai",
         label: "The chase, automated",
-        body: "The mechanical side of progression is coordination, which AI does well. The human keeps every vendor and buyer conversation — hand those to a machine and you risk real damage to the conversion rate of the business.",
+        body: "The mechanical side of progression is coordination, which AI does well. The human keeps every vendor and buyer conversation. Hand those to a machine and you risk real damage to the conversion rate of the business.",
       },
     ],
   },
@@ -703,12 +703,12 @@ export const SEATS: Seat[] = [
     planLabel: ["Admin &", "marketing"],
     owns: "Owns jobs 03–04 · listings live, demand generated",
     summary:
-      "Runs the machine that takes listings live and keeps viewings coming — the seat the agent layer changes most.",
+      "Runs the machine that takes listings live and keeps viewings coming. The seat the agent layer changes most.",
     rect: { x: 545, y: 224, w: 160, h: 116 },
     blocks: [
       {
         kind: "lead",
-        text: "This seat owns the two AI-led jobs: taking on properties and marketing them. It changes more than any other — from producing the work to directing it.",
+        text: "This seat owns the two AI-led jobs: taking on properties and marketing them. It changes more than any other, from producing the work to directing it.",
       },
       { kind: "h", text: "What the seat keeps" },
       {
@@ -733,7 +733,7 @@ export const SEATS: Seat[] = [
         kind: "callout",
         tone: "ai",
         label: "From doing to directing",
-        body: "Everything here is process work with clear steps and few emotional stakes. Done by agents, it happens faster and more consistently — and the seat becomes an editor of machine output rather than a producer of admin.",
+        body: "Everything here is process work with clear steps and few emotional stakes. Done by agents, it happens faster and more consistently, and the seat becomes an editor of machine output rather than a producer of admin.",
       },
     ],
   },

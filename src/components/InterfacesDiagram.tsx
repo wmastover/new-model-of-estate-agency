@@ -1,7 +1,7 @@
 /**
- * Plan 03 — The interfaces. A wiring diagram: the agency as an AI
- * switchboard, wired to every external provider. Blue lines carry money —
- * relationships the agency monetises through referrals. Content in drafting.
+ * Plan 03, The interfaces. A wiring diagram: the agency as an AI
+ * switchboard, wired to every external provider. Blue lines carry money,
+ * the relationships the agency monetises through referrals. Content in drafting.
  */
 
 import {
@@ -130,7 +130,7 @@ export default function InterfacesDiagram() {
         );
       })}
 
-      {/* The agency — an AI switchboard at the centre */}
+      {/* The agency: an AI switchboard at the centre */}
       <rect
         x="238"
         y="313"
@@ -186,7 +186,7 @@ export default function InterfacesDiagram() {
       <MarginNote
         x={704}
         y={395}
-        text="AIP — Plan 03 — The interfaces — wiring & referrals"
+        text="AIP · Plan 03 · The interfaces · wiring & referrals"
       />
     </svg>
   );

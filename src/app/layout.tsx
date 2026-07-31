@@ -15,9 +15,9 @@ const hankenGrotesk = Hanken_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: "A New Model of Estate Agency — AIP",
+  title: "A New Model of Estate Agency · AIP",
   description:
-    "A walkthrough of how UK residential estate agency works today, job by job — and exactly where AI changes the model. By Applied Intelligence Partners.",
+    "A walkthrough of how UK residential estate agency works today, job by job, and exactly where AI changes the model. By Applied Intelligence Partners.",
 };
 
 export default function RootLayout({

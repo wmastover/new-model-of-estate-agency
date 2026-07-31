@@ -116,7 +116,7 @@ export default function RoomView({ room, onSelect }: RoomViewProps) {
               </span>
               <span style={{ fontSize: 14, lineHeight: 1.6, color: "var(--ink-300)" }}>
                 <strong style={{ color: "var(--ink-700)", fontWeight: 600 }}>
-                  Our call — {ASSIGNMENT_META[room.assignment].label}.
+                  Our call: {ASSIGNMENT_META[room.assignment].label}.
                 </strong>{" "}
                 {ASSIGNMENT_META[room.assignment].description}
               </span>
@@ -165,7 +165,7 @@ export default function RoomView({ room, onSelect }: RoomViewProps) {
                 <span>
                   Continue the tour
                   <span style={{ display: "block", fontSize: 12.5, opacity: 0.75, marginTop: 2 }}>
-                    {String(index + 1).padStart(2, "0")} — {next.title}
+                    {String(index + 1).padStart(2, "0")} · {next.title}
                   </span>
                 </span>
                 <span aria-hidden>→</span>
@@ -189,7 +189,7 @@ export default function RoomView({ room, onSelect }: RoomViewProps) {
                 }}
               >
                 <span aria-hidden>←</span>
-                <span style={{ flex: 1 }}>Back — {prev.title}</span>
+                <span style={{ flex: 1 }}>Back · {prev.title}</span>
               </button>
             )}
           </div>

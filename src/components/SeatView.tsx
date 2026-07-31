@@ -155,7 +155,7 @@ export default function SeatView({ seat, onSelect }: SeatViewProps) {
                 }}
               >
                 <span aria-hidden>←</span>
-                <span style={{ flex: 1 }}>Back — {prev.title}</span>
+                <span style={{ flex: 1 }}>Back · {prev.title}</span>
               </button>
             )}
           </div>

@@ -245,7 +245,7 @@ export default function Tour() {
               className="kicker"
               style={{ color: "var(--ink-500)", fontWeight: 500, marginBottom: 12 }}
             >
-              Under renovation — content lands in v1
+              Under renovation · content lands in v1
             </div>
             <p
               style={{
@@ -256,8 +256,8 @@ export default function Tour() {
               }}
             >
               This layer is still being drafted. It will map every external
-              relationship — boards, photography, EPC, AML, conveyancing,
-              mortgages, removals — what the AI switchboard automates in each,
+              relationship (boards, photography, EPC, AML, conveyancing,
+              mortgages, removals), what the AI switchboard automates in each,
               and where referral revenue is being left on the table today.
             </p>
           </div>
@@ -283,7 +283,7 @@ export default function Tour() {
             </div>
           </div>
 
-          {/* Index — the document as a straight list, for skimmers */}
+          {/* Index: the document as a straight list, for skimmers */}
           <section
             style={{
               marginTop: 84,
@@ -295,7 +295,7 @@ export default function Tour() {
               className="kicker"
               style={{ color: "var(--ink-300)", marginBottom: 26 }}
             >
-              Index — the tour in order
+              Index · the tour in order
             </div>
             <div
               style={{
@@ -370,7 +370,7 @@ export default function Tour() {
             ))}
           </section>
 
-          {/* Where this leaves us — the document's conclusion */}
+          {/* Where this leaves us: the document's conclusion */}
           <section
             style={{
               marginTop: 96,
@@ -459,7 +459,7 @@ export default function Tour() {
                   lineHeight: 1.35,
                 }}
               >
-                Not a cheaper agency — an agency where people spend their time
+                Not a cheaper agency: an agency where people spend their time
                 on the work that wins business and builds relationships.
               </span>
             </div>

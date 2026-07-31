@@ -1,5 +1,5 @@
 /**
- * Shared drawing language for the three schematic diagrams —
+ * Shared drawing language for the three schematic diagrams:
  * one set of inks, fills and chips so every layer codes work the same way.
  */
 

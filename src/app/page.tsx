@@ -71,7 +71,7 @@ export default function Home() {
         </div>
 
         <div className="kicker" style={{ color: "var(--blue)", marginBottom: 22 }}>
-          Operating model — working draft · July 2026
+          Operating model · working draft · July 2026
         </div>
         <h1
           className="mono"
@@ -95,7 +95,7 @@ export default function Home() {
             margin: "0 0 34px",
           }}
         >
-          How UK residential estate agency actually works, job by job — and
+          How UK residential estate agency actually works, job by job, and
           exactly where AI changes the economics. Not AI replacing the agent:
           the work splits into three kinds, and each kind should be handled
           differently. Detailed enough to build an agency from scratch. Step
@@ -116,15 +116,15 @@ export default function Home() {
             [
               [
                 "rgba(15,16,17,.07)",
-                "Human-led — trust-critical, relationship-defining",
+                "Human-led: trust-critical, relationship-defining",
               ],
               [
                 "repeating-linear-gradient(45deg, rgba(47,111,224,.30) 0 1.5px, rgba(47,111,224,.06) 1.5px 8px)",
-                "Human + AI — side by side",
+                "Human + AI: side by side",
               ],
               [
                 "rgba(47,111,224,.18)",
-                "AI-led — repetitive, process-driven",
+                "AI-led: repetitive, process-driven",
               ],
             ] as const
           ).map(([swatch, label]) => (
@@ -171,7 +171,7 @@ export default function Home() {
           flexWrap: "wrap",
         }}
       >
-        <span>AIP — Applied Intelligence Partners</span>
+        <span>AIP · Applied Intelligence Partners</span>
         <span>A new model of estate agency · working draft · content will change, the rooms won&apos;t</span>
       </footer>
     </div>

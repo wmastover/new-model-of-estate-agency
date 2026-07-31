@@ -2,7 +2,7 @@
 
 import { ASSIGNMENT_META, type Assignment, type Block } from "../data/model";
 
-/** Square marker — replaces the source doc's 🟥🟨🟩 emoji. */
+/** Square marker: replaces the source doc's 🟥🟨🟩 emoji. */
 export function Marker({
   tone,
   size = 8,
@@ -84,7 +84,7 @@ function CalloutBlock({ block }: { block: Extract<Block, { kind: "callout" }> })
                 className="mono"
                 style={{ color: "var(--blue)", flexShrink: 0, fontSize: 15 }}
               >
-                —
+                ·
               </span>
               <span style={{ fontSize: 15.5, lineHeight: 1.65, color: "var(--ink-500)" }}>
                 {item}
@@ -162,7 +162,7 @@ export function BlockRenderer({ block }: { block: Block }) {
                     width: 22,
                   }}
                 >
-                  {block.ordered ? String(i + 1).padStart(2, "0") : "—"}
+                  {block.ordered ? String(i + 1).padStart(2, "0") : "·"}
                 </span>
                 <span style={{ fontSize: 15.5, lineHeight: 1.6, color: "var(--ink-700)" }}>
                   {item}

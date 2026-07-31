@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * Plan 02 — The people. An org section of a modern branch, drawn in the
+ * Plan 02, The people. An org section of a modern branch, drawn in the
  * same schematic language as the floor plan. Every box is a person and
  * opens into a seat page; the AI agent layer sits underneath the branch.
  */
@@ -200,7 +200,7 @@ export default function PeopleDiagram({
         <MarginNote
           x={704}
           y={300}
-          text="AIP — Plan 02 — The people — who holds each seat"
+          text="AIP · Plan 02 · The people · who holds each seat"
         />
       )}
     </svg>
