@@ -4,7 +4,13 @@ import { PROVIDERS, type Provider } from "../data/model";
 import { BlockRenderer } from "./Blocks";
 import InterfacesDiagram from "./InterfacesDiagram";
 
-function MoneyBadge({ monetised }: { monetised: boolean }) {
+function MoneyBadge({
+  monetised,
+  label,
+}: {
+  monetised: boolean;
+  label?: string;
+}) {
   const base: React.CSSProperties = {
     fontFamily: "var(--font-geist-mono), monospace",
     fontSize: 12,
@@ -19,11 +25,11 @@ function MoneyBadge({ monetised }: { monetised: boolean }) {
   if (monetised) {
     base.background = "var(--blue)";
     base.color = "var(--snow-900)";
-    return <span style={base}>£ Revenue stream</span>;
+    return <span style={base}>{label ?? "£ Revenue stream"}</span>;
   }
   base.border = "1px solid var(--hairline-18)";
   base.color = "var(--ink-500)";
-  return <span style={base}>Cost centre</span>;
+  return <span style={base}>{label ?? "Cost centre"}</span>;
 }
 
 interface ProviderViewProps {
@@ -74,7 +80,10 @@ export default function ProviderView({ provider, onSelect }: ProviderViewProps) 
             Interface {String(index + 1).padStart(2, "0")} /{" "}
             {String(PROVIDERS.length).padStart(2, "0")}
           </span>
-          <MoneyBadge monetised={provider.monetised} />
+          <MoneyBadge
+            monetised={provider.monetised}
+            label={provider.badgeLabel}
+          />
         </div>
         <h1
           className="mono"

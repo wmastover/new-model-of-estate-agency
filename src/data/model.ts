@@ -756,6 +756,8 @@ export interface Provider {
   planLabel: string[];
   /** Referral revenue flows down this wire. */
   monetised: boolean;
+  /** Header badge label; defaults by the monetised flag. */
+  badgeLabel?: string;
   summary: string;
   blocks: Block[];
   /** Rect on the interfaces drawing, in viewBox units. */
@@ -1027,9 +1029,10 @@ export const PROVIDERS: Provider[] = [
     slug: "removals-trades",
     title: "Removals & trades",
     planLabel: ["Removals", "& trades"],
-    monetised: true,
+    monetised: false,
+    badgeLabel: "Not monetised",
     summary:
-      "The moving-day economy: small commissions on relationships the agency already owns.",
+      "The moving-day economy: recommendations that are good service first, not a real revenue line.",
     rect: { x: 520, y: 672, w: PROVIDER_W, h: PROVIDER_H },
     blocks: [
       {
@@ -1039,23 +1042,23 @@ export const PROVIDERS: Provider[] = [
       { kind: "h", text: "How they work with the agency" },
       {
         kind: "p",
-        text: "The agency is standing next to two households who are about to move and asking who to use. Recommendations happen naturally around [[completing-the-sale|exchange and completion]], when dates firm up, and they are part of good service as much as a commercial play.",
+        text: "The agency is standing next to two households who are about to move and asking who to use. Recommendations happen naturally around [[completing-the-sale|exchange and completion]], when dates firm up, and they are simply part of good service.",
       },
       { kind: "h", text: "The money" },
       {
         kind: "p",
-        text: "Partner firms pay a commission per booked referral. Individually small, tens of pounds rather than hundreds, but pure margin on relationships the agency already owns. Today it is barely captured at all, because nobody's job is to remember it at the busiest moment of the deal.",
+        text: "Some partner firms will pay a small commission per booked referral, but the sums are tens of pounds at best and the admin rarely justifies chasing them. The real return is goodwill: a good recommendation at the most stressful moment of the move, and a household that remembers the agency fondly.",
       },
       {
         kind: "banner",
-        label: "Revenue stream",
-        text: "Small per-deal commissions that are almost pure margin, and almost never collected today.",
+        label: "Not a revenue stream",
+        text: "The value is the relationship and the service, not the commission.",
       },
       {
         kind: "callout",
         tone: "ai",
         label: "Where the agent layer helps",
-        body: "Prompting the recommendation automatically when exchange dates land, and logging the introduction so the commission actually gets invoiced.",
+        body: "Prompting the recommendation automatically when exchange dates land, so the small touches that make the service feel personal never get forgotten.",
       },
     ],
   },
