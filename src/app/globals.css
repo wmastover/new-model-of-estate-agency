@@ -119,3 +119,15 @@ a:hover {
 .mono {
   font-family: var(--font-geist-mono), monospace;
 }
+
+/* Wikipedia-style in-content reference to another page */
+.ref {
+  color: var(--blue);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(47, 111, 224, 0.35);
+  transition: border-color 0.15s ease;
+}
+.ref:hover {
+  color: var(--blue-dark);
+  border-bottom-color: var(--blue);
+}

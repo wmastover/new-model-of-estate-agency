@@ -192,7 +192,7 @@ export const ROOMS: Room[] = [
           "Touting: mail-outs to houses currently on the market with a competitor",
           "Mail-outs to the neighbours of houses you have sold",
           "Website enquiries, which are less common than they used to be",
-          "Portal enquiries from Rightmove, Zoopla and OnTheMarket: these usually land with around six agents at once, so they are highly competitive",
+          "[[portals|Portal enquiries]] from Rightmove, Zoopla and OnTheMarket: these usually land with around six agents at once, so they are highly competitive",
           "Turning a buyer into a seller: someone viewing one of your listings has their own house to sell",
           "Brand awareness: the high street shop, sold boards, local newspapers, market update emails, your listings on the portals, and your Instagram and Facebook presence",
           "Re-engaging vendors who instructed a competitor",
@@ -201,7 +201,7 @@ export const ROOMS: Room[] = [
       },
       {
         kind: "p",
-        text: "Enquiries from your website and the portals usually pull through into an inbox on the CRM. Most agents will call the vendor the moment they see the enquiry to try to book a time. A high-touch, personal approach wins more business here, so agents compete to be first to make contact, especially on portal enquiries, where the competition is fiercest.",
+        text: "Enquiries from your website and [[portals|the portals]] usually pull through into an inbox on the CRM. Most agents will call the vendor the moment they see the enquiry to try to book a time. A high-touch, personal approach wins more business here, so agents compete to be first to make contact, especially on portal enquiries, where the competition is fiercest.",
       },
       {
         kind: "callout",
@@ -233,7 +233,7 @@ export const ROOMS: Room[] = [
       { kind: "h", text: "What the job is" },
       {
         kind: "lead",
-        text: "Converting the valuation appointment into a signed instruction.",
+        text: "Converting the [[booking-valuations|valuation appointment]] into a signed instruction.",
       },
       {
         kind: "callout",
@@ -272,11 +272,11 @@ export const ROOMS: Room[] = [
         title: "The list is well defined and mostly administrative",
         items: [
           "Writing the property details",
-          "Arranging professional photography, plus a walkthrough or video",
-          "Getting an EPC and a floorplan produced",
-          "Posting to the portals through the CRM integration with Rightmove, Zoopla and OnTheMarket",
-          "Working out access arrangements for viewings",
-          "Running AML checks, usually through an outsourced provider",
+          "Arranging [[photographer|professional photography]], plus a walkthrough or video",
+          "Getting an [[epc-floorplan|EPC and a floorplan]] produced",
+          "Posting to [[portals|the portals]] through the CRM integration with Rightmove, Zoopla and OnTheMarket",
+          "Working out access arrangements for [[managing-viewings|viewings]]",
+          "Running [[aml-provider|AML checks]], usually through an outsourced provider",
         ],
       },
       {
@@ -325,7 +325,7 @@ export const ROOMS: Room[] = [
         tone: "ai",
         label: "Where AI fits in",
         items: [
-          "Making sure the listing is pulling a healthy number of viewings from the portals, and flagging when it is not",
+          "Making sure the listing is pulling a healthy number of viewings from [[portals|the portals]], and flagging when it is not",
           "Posting to social channels for awareness",
           "Matching the property to relevant applicants and emailing them through the CRM",
         ],
@@ -371,7 +371,7 @@ export const ROOMS: Room[] = [
         kind: "stat",
         value: "£400 to £5,000",
         title: "What the qualifying questions are worth",
-        note: "A buyer without a mortgage is a referral worth around £400. A buyer with a property to sell is a potential valuation worth around £5,000. Asking them consistently adds up.",
+        note: "A buyer without a mortgage is a [[mortgage-advisor|referral]] worth around £400. A buyer with a property to sell is a potential [[booking-valuations|valuation]] worth around £5,000. Asking them consistently adds up.",
       },
       {
         kind: "p",
@@ -379,7 +379,7 @@ export const ROOMS: Room[] = [
       },
       {
         kind: "p",
-        text: "Once the viewing happens, a negotiator meets the buyer at the property, conducts the viewing, and then chases them over the following days for feedback. That feedback goes to the vendor, usually by phone, and it often does double duty as the evidence base for a future conversation about reducing the price.",
+        text: "Once the viewing happens, a [[sales-negotiator|negotiator]] meets the buyer at the property, conducts the viewing, and then chases them over the following days for feedback. That feedback goes to the vendor, usually by phone, and it often does double duty as the evidence base for a future conversation about reducing the price.",
       },
       {
         kind: "callout",
@@ -416,11 +416,11 @@ export const ROOMS: Room[] = [
       { kind: "h", text: "How it works today" },
       {
         kind: "p",
-        text: "When a viewing produces an offer, the agency presents it to the vendor with a recommendation. This should almost always be done by a person, on the phone. It is life-changing news, and it deserves a personal touch. It is also a legal requirement to present every offer, so the agent has to make the call regardless.",
+        text: "When a [[managing-viewings|viewing]] produces an offer, the agency presents it to the vendor with a recommendation. This should almost always be done by a person, on the phone. It is life-changing news, and it deserves a personal touch. It is also a legal requirement to present every offer, so the agent has to make the call regardless.",
       },
       {
         kind: "p",
-        text: "A good agency tries to close on terms that both sides are comfortable with, rather than squeezing for the last pound. You will be working with both parties for roughly three more months before completion, and when someone feels they were pushed on price, it tends to resurface later. The vendor takes the lightbulbs on the way out, or the buyer walks because the white goods were not included.",
+        text: "A good agency tries to close on terms that both sides are comfortable with, rather than squeezing for the last pound. You will be working with both parties for roughly three more months before [[completing-the-sale|completion]], and when someone feels they were pushed on price, it tends to resurface later. The vendor takes the lightbulbs on the way out, or the buyer walks because the white goods were not included.",
       },
       {
         kind: "callout",
@@ -455,7 +455,7 @@ export const ROOMS: Room[] = [
       { kind: "h", text: "How it works today" },
       {
         kind: "p",
-        text: "Once a sale is agreed and both parties are happy, the solicitors get involved. Both sides instruct one, and some agencies have partner firms that pay referral fees, so there is another commercial opportunity here.",
+        text: "Once a sale is agreed and both parties are happy, the [[conveyancer|solicitors]] get involved. Both sides instruct one, and some agencies have partner firms that pay referral fees, so there is another commercial opportunity here.",
       },
       {
         kind: "p",
@@ -496,7 +496,7 @@ export const ROOMS: Room[] = [
       { kind: "h", text: "How it works today" },
       {
         kind: "p",
-        text: "This is the best part of the job, and it should feel like it. Handing someone the keys to their first home is a moment worth marking. Buyers do not pay the agency's bills, but they are an excellent long-term investment. A bottle of prosecco and a card when they move in buys a lot of loyalty, and often a future instruction.",
+        text: "This is the best part of the job, and it should feel like it. Handing someone the keys to their first home is a moment worth marking. Buyers do not pay the agency's bills, but they are an excellent long-term investment. A bottle of prosecco and a card when they move in buys a lot of loyalty, and often a [[booking-valuations|future instruction]].",
       },
       {
         kind: "callout",
@@ -551,13 +551,13 @@ export const SEATS: Seat[] = [
     blocks: [
       {
         kind: "lead",
-        text: "The branch manager owns the outcome: instructions won, sales completed, and the reputation of the office. In the new model this seat changes least in what it is for, and most in how it spends the day.",
+        text: "The branch manager owns the outcome: [[winning-valuations|instructions won]], [[completing-the-sale|sales completed]], and the reputation of the office. In the new model this seat changes least in what it is for, and most in how it spends the day.",
       },
       { kind: "h", text: "What the seat keeps" },
       {
         kind: "list",
         items: [
-          "The hard conversations: price reductions when viewings dry up, contract renewals, and rescuing deals that are wobbling",
+          "The hard conversations: [[marketing-properties|price reductions]] when viewings dry up, contract renewals, and rescuing [[progressing-the-sale|deals that are wobbling]]",
           "Pricing strategy and the recommendation on every offer",
           "Hiring, coaching, and the quality of every human touch the branch makes",
         ],
@@ -590,7 +590,7 @@ export const SEATS: Seat[] = [
     blocks: [
       {
         kind: "lead",
-        text: "The valuation manager carries the two jobs that decide whether the agency grows: booking valuations and winning them. The seat is pure sales, and it is the most human seat in the branch.",
+        text: "The valuation manager carries the two jobs that decide whether the agency grows: [[booking-valuations|booking valuations]] and [[winning-valuations|winning them]]. The seat is pure sales, and it is the most human seat in the branch.",
       },
       { kind: "h", text: "What the seat keeps" },
       {
@@ -629,7 +629,7 @@ export const SEATS: Seat[] = [
     blocks: [
       {
         kind: "lead",
-        text: "The negotiator owns the buyer's journey: from viewing enquiry through to an offer on the table. It is the seat with the most repetitive admin around the most human moments.",
+        text: "The negotiator owns the buyer's journey: from [[managing-viewings|viewing enquiry]] through to [[negotiating-the-sale|an offer on the table]]. It is the seat with the most repetitive admin around the most human moments.",
       },
       { kind: "h", text: "What the seat keeps" },
       {
@@ -645,7 +645,7 @@ export const SEATS: Seat[] = [
         kind: "list",
         items: [
           "Qualifying every buyer the moment they enquire: mortgage in principle, affordability, something to sell",
-          "Capturing the referral value in those answers: a mortgage introduction is worth around £400, a buyer with a home to sell is a ~£5,000 valuation lead",
+          "Capturing the referral value in those answers: a [[mortgage-advisor|mortgage introduction]] is worth around £400, a buyer with a home to sell is a ~£5,000 [[booking-valuations|valuation lead]]",
           "Scheduling: the tenant, landlord and key logistics that today mean phone tennis",
           "Chasing viewing feedback consistently, so nothing slips",
         ],
@@ -669,7 +669,7 @@ export const SEATS: Seat[] = [
     blocks: [
       {
         kind: "lead",
-        text: "The progressor runs the stretch where roughly three months of solicitors, surveys and chains sit between an agreed sale and completion. The job is a chase and a counselling service, run side by side.",
+        text: "The progressor runs [[progressing-the-sale|the stretch]] where roughly three months of [[conveyancer|solicitors]], surveys and chains sit between [[negotiating-the-sale|an agreed sale]] and [[completing-the-sale|completion]]. The job is a chase and a counselling service, run side by side.",
       },
       { kind: "h", text: "What the seat keeps" },
       {
@@ -708,7 +708,7 @@ export const SEATS: Seat[] = [
     blocks: [
       {
         kind: "lead",
-        text: "This seat owns the two AI-led jobs: taking on properties and marketing them. It changes more than any other, from producing the work to directing it.",
+        text: "This seat owns the two AI-led jobs: [[taking-on-properties|taking on properties]] and [[marketing-properties|marketing them]]. It changes more than any other, from producing the work to directing it.",
       },
       { kind: "h", text: "What the seat keeps" },
       {
@@ -723,8 +723,8 @@ export const SEATS: Seat[] = [
       {
         kind: "list",
         items: [
-          "Drafting details, booking the photographer, ordering the EPC and floorplan, triggering AML",
-          "Pushing listings live through the CRM to Rightmove, Zoopla and OnTheMarket",
+          "Drafting details, booking [[photographer|the photographer]], ordering the [[epc-floorplan|EPC and floorplan]], triggering [[aml-provider|AML]]",
+          "Pushing listings live through the CRM to [[portals|Rightmove, Zoopla and OnTheMarket]]",
           "Monitoring portal performance and flagging listings that are not pulling viewings",
           "Social posting and matching properties to applicants by email",
         ],
@@ -784,7 +784,7 @@ export const PROVIDERS: Provider[] = [
       { kind: "h", text: "How they work with the agency" },
       {
         kind: "p",
-        text: "Listings are pushed to the portals automatically through the CRM integration. Everything flows back the other way as enquiries: viewing requests and valuation leads land in the CRM inbox, and the portals supply performance data on how each listing is doing.",
+        text: "Listings are pushed to the portals automatically through the CRM integration. Everything flows back the other way as enquiries: [[managing-viewings|viewing requests]] and [[booking-valuations|valuation leads]] land in the CRM inbox, and the portals supply performance data on how each listing is doing.",
       },
       {
         kind: "p",
@@ -824,7 +824,7 @@ export const PROVIDERS: Provider[] = [
       { kind: "h", text: "How they work with the agency" },
       {
         kind: "p",
-        text: "Booked per instruction as part of taking a property on. The agency coordinates access with the vendor, chases the edited shots, and quality-checks them before the listing goes live. In practice photography is usually what sets the pace between a signed agreement and a live listing.",
+        text: "Booked per instruction as part of [[taking-on-properties|taking a property on]]. The agency coordinates access with the vendor, chases the edited shots, and quality-checks them before the listing goes live. In practice photography is usually what sets the pace between a signed agreement and a live listing.",
       },
       { kind: "h", text: "The money" },
       {
@@ -859,7 +859,7 @@ export const PROVIDERS: Provider[] = [
       { kind: "h", text: "How they work with the agency" },
       {
         kind: "p",
-        text: "Ordered at take-on. The assessor visits once, and the certificate and floorplan come back within a few days. A property cannot be fully marketed without an EPC in place or at least commissioned, so a slow assessor delays the listing.",
+        text: "Ordered at [[taking-on-properties|take-on]]. The assessor visits once, and the certificate and floorplan come back within a few days. A property cannot be fully marketed without an EPC in place or at least commissioned, so a slow assessor delays the listing.",
       },
       { kind: "h", text: "The money" },
       {
@@ -895,7 +895,7 @@ export const PROVIDERS: Provider[] = [
       { kind: "h", text: "How they work with the agency" },
       {
         kind: "p",
-        text: "Instructed at three moments in every sale: erect the board when the listing goes live, switch the slip to sold when the sale is agreed, and collect the board after completion. Boards are also marketing. A street of your boards is the cheapest brand awareness an agency can buy, and sold boards generate valuation enquiries from the neighbours.",
+        text: "Instructed at three moments in every sale: erect the board when [[taking-on-properties|the listing goes live]], switch the slip to sold when [[negotiating-the-sale|the sale is agreed]], and collect the board after [[completing-the-sale|completion]]. Boards are also marketing. A street of your boards is the cheapest brand awareness an agency can buy, and sold boards generate [[booking-valuations|valuation enquiries]] from the neighbours.",
       },
       { kind: "h", text: "The money" },
       {
@@ -931,7 +931,7 @@ export const PROVIDERS: Provider[] = [
       { kind: "h", text: "How they work with the agency" },
       {
         kind: "p",
-        text: "Triggered at take-on for vendors, and again for buyers once a sale is agreed. The checks are digital: the provider verifies ID documents, screens against sanctions lists, and flags anything that needs a human decision. The agency cannot legally market the property or progress the sale until the checks pass.",
+        text: "Triggered at [[taking-on-properties|take-on]] for vendors, and again for buyers once [[negotiating-the-sale|a sale is agreed]]. The checks are digital: the provider verifies ID documents, screens against sanctions lists, and flags anything that needs a human decision. The agency cannot legally market the property or [[progressing-the-sale|progress the sale]] until the checks pass.",
       },
       { kind: "h", text: "The money" },
       {
@@ -967,7 +967,7 @@ export const PROVIDERS: Provider[] = [
       { kind: "h", text: "How they work with the agency" },
       {
         kind: "p",
-        text: "Both sides instruct one once a sale is agreed. From that point the sales progressor works through the chain of conveyancers to find whoever is currently blocking progress and clear it. The conveyancer is the party the agency chases more than any other.",
+        text: "Both sides instruct one once [[negotiating-the-sale|a sale is agreed]]. From that point the [[sales-progressor|sales progressor]] works through the chain of conveyancers to find whoever is currently blocking progress and clear it. The conveyancer is the party the agency chases more than any other.",
       },
       { kind: "h", text: "The money" },
       {
@@ -1003,7 +1003,7 @@ export const PROVIDERS: Provider[] = [
       { kind: "h", text: "How they work with the agency" },
       {
         kind: "p",
-        text: "The introduction happens at the viewing stage. Qualifying a buyer surfaces whether they have a mortgage in principle; if they do not, the negotiator books them a meeting with the advisor. A buyer with financing arranged is also a stronger buyer for the vendor, so the introduction helps the sale as well as the fee line.",
+        text: "The introduction happens at [[managing-viewings|the viewing stage]]. Qualifying a buyer surfaces whether they have a mortgage in principle; if they do not, the [[sales-negotiator|negotiator]] books them a meeting with the advisor. A buyer with financing arranged is also a stronger buyer for the vendor, so the introduction helps the sale as well as the fee line.",
       },
       { kind: "h", text: "The money" },
       {
@@ -1039,7 +1039,7 @@ export const PROVIDERS: Provider[] = [
       { kind: "h", text: "How they work with the agency" },
       {
         kind: "p",
-        text: "The agency is standing next to two households who are about to move and asking who to use. Recommendations happen naturally around exchange and completion, when dates firm up, and they are part of good service as much as a commercial play.",
+        text: "The agency is standing next to two households who are about to move and asking who to use. Recommendations happen naturally around [[completing-the-sale|exchange and completion]], when dates firm up, and they are part of good service as much as a commercial play.",
       },
       { kind: "h", text: "The money" },
       {

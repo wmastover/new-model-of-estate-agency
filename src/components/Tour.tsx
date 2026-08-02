@@ -175,10 +175,12 @@ export default function Tour() {
     push(id === "mechanics" ? null : id);
   }, []);
 
-  // Deep links + back/forward buttons.
+  // Deep links, back/forward buttons, and in-content [[references]],
+  // which are plain anchors whose hash change lands here via popstate.
   useEffect(() => {
-    const fromHash = () => {
+    const fromHash = (scroll?: boolean) => {
       const slug = window.location.hash.replace("#", "");
+      if (scroll) scrollTop();
       setPlanAnim("none");
       setPeopleAnim("none");
       setInterfacesAnim("none");
@@ -215,9 +217,10 @@ export default function Tour() {
       setActiveProvider(null);
     };
     fromHash();
-    window.addEventListener("popstate", fromHash);
+    const onPop = () => fromHash(true);
+    window.addEventListener("popstate", onPop);
     return () => {
-      window.removeEventListener("popstate", fromHash);
+      window.removeEventListener("popstate", onPop);
       if (timerRef.current) clearTimeout(timerRef.current);
     };
   }, []);

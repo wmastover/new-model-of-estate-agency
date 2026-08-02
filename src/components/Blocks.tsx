@@ -1,6 +1,50 @@
 "use client";
 
-import { ASSIGNMENT_META, type Assignment, type Block } from "../data/model";
+import {
+  ASSIGNMENT_META,
+  PROVIDERS,
+  ROOMS,
+  SEATS,
+  type Assignment,
+  type Block,
+} from "../data/model";
+
+/* ------------------------------------------------------------------ */
+/* Wikipedia-style references. Content strings can contain             */
+/* [[slug]] or [[slug|display text]], which render as links to the    */
+/* room, seat or provider page with that slug. Navigation rides the   */
+/* existing hash routing: the anchor sets the hash, Tour picks it up. */
+/* ------------------------------------------------------------------ */
+
+const TITLE_BY_SLUG: Record<string, string> = Object.fromEntries(
+  [...ROOMS, ...SEATS, ...PROVIDERS].map((entry) => [entry.slug, entry.title])
+);
+
+const REF_PATTERN = /\[\[([a-z0-9-]+)(?:\|([^\]]+))?\]\]/g;
+
+function Ref({ slug, label }: { slug: string; label?: string }) {
+  return (
+    <a href={`#${slug}`} className="ref">
+      {label ?? TITLE_BY_SLUG[slug] ?? slug}
+    </a>
+  );
+}
+
+/** Renders a content string, turning [[slug|text]] references into links. */
+export function RichText({ text }: { text: string }) {
+  const matches = [...text.matchAll(REF_PATTERN)];
+  if (matches.length === 0) return <>{text}</>;
+
+  const parts: React.ReactNode[] = [];
+  let cursor = 0;
+  matches.forEach((m, i) => {
+    if (m.index > cursor) parts.push(text.slice(cursor, m.index));
+    parts.push(<Ref key={i} slug={m[1]} label={m[2]} />);
+    cursor = m.index + m[0].length;
+  });
+  if (cursor < text.length) parts.push(text.slice(cursor));
+  return <>{parts}</>;
+}
 
 /** Square marker: replaces the source doc's 🟥🟨🟩 emoji. */
 export function Marker({
@@ -73,7 +117,7 @@ function CalloutBlock({ block }: { block: Extract<Block, { kind: "callout" }> })
       </div>
       {block.body && (
         <p style={{ fontSize: 15.5, lineHeight: 1.65, color: "var(--ink-500)", margin: 0 }}>
-          {block.body}
+          <RichText text={block.body} />
         </p>
       )}
       {block.items && (
@@ -87,7 +131,7 @@ function CalloutBlock({ block }: { block: Extract<Block, { kind: "callout" }> })
                 ·
               </span>
               <span style={{ fontSize: 15.5, lineHeight: 1.65, color: "var(--ink-500)" }}>
-                {item}
+                <RichText text={item} />
               </span>
             </div>
           ))}
@@ -102,13 +146,13 @@ export function BlockRenderer({ block }: { block: Block }) {
     case "lead":
       return (
         <p style={{ fontSize: 19, lineHeight: 1.6, color: "var(--ink-800)", margin: 0 }}>
-          {block.text}
+          <RichText text={block.text} />
         </p>
       );
     case "p":
       return (
         <p style={{ fontSize: 16, lineHeight: 1.65, color: "var(--ink-500)", margin: 0 }}>
-          {block.text}
+          <RichText text={block.text} />
         </p>
       );
     case "h":
@@ -165,7 +209,7 @@ export function BlockRenderer({ block }: { block: Block }) {
                   {block.ordered ? String(i + 1).padStart(2, "0") : "·"}
                 </span>
                 <span style={{ fontSize: 15.5, lineHeight: 1.6, color: "var(--ink-700)" }}>
-                  {item}
+                  <RichText text={item} />
                 </span>
               </div>
             ))}
@@ -208,7 +252,7 @@ export function BlockRenderer({ block }: { block: Block }) {
           </span>
           {block.note && (
             <span style={{ fontSize: 14, color: "var(--ink-500)", lineHeight: 1.5 }}>
-              {block.note}
+              <RichText text={block.note} />
             </span>
           )}
         </div>
