@@ -1,56 +1,44 @@
+"use client";
+
 /**
- * Plan 03, The interfaces. A wiring diagram: the agency as an AI
- * switchboard, wired to every external provider. Blue lines carry money,
- * the relationships the agency monetises through referrals. Content in drafting.
+ * Plan 03, The interfaces. A wiring diagram: the agency at the centre,
+ * wired to every external provider. Blue lines carry money, the
+ * relationships the agency monetises through referrals. Every provider
+ * box opens into its own page.
  */
 
-import {
-  BLUE,
-  HAIR,
-  HAIR_SOFT,
-  INK,
-  MarginNote,
-  MONO,
-} from "./plan-style";
-
-interface Node {
-  lines: string[];
-  x: number;
-  y: number;
-  /** Referral revenue flows down this wire. */
-  monetised?: boolean;
-}
-
-const NODE_W = 180;
-const NODE_H = 78;
-
-const NODES: Node[] = [
-  { lines: ["Portals"], x: 20, y: 40 },
-  { lines: ["Photographer"], x: 270, y: 40 },
-  { lines: ["EPC &", "floorplan"], x: 520, y: 40 },
-  { lines: ["Board", "contractor"], x: 20, y: 356 },
-  { lines: ["AML provider"], x: 520, y: 356 },
-  { lines: ["Conveyancer"], x: 20, y: 672, monetised: true },
-  { lines: ["Mortgage", "advisor"], x: 270, y: 672, monetised: true },
-  { lines: ["Removals", "& trades"], x: 520, y: 672, monetised: true },
-];
+import { useState } from "react";
+import { PROVIDERS } from "../data/model";
+import { BLUE, HAIR, HAIR_SOFT, INK, INK_300, MarginNote, MONO } from "./plan-style";
 
 const CENTER = { x: 360, y: 395 };
 
-export default function InterfacesDiagram() {
+interface InterfacesDiagramProps {
+  active?: string | null;
+  onSelect?: (slug: string) => void;
+  mini?: boolean;
+}
+
+export default function InterfacesDiagram({
+  active,
+  onSelect,
+  mini,
+}: InterfacesDiagramProps) {
+  const [hovered, setHovered] = useState<string | null>(null);
+
   return (
     <svg
       viewBox="0 0 720 790"
-      role="img"
+      role="group"
       aria-label="Wiring diagram of the agency's external interfaces"
       style={{ display: "block", width: "100%", height: "100%" }}
     >
       {/* Wires first, boxes drawn over them */}
-      {NODES.map((node) => {
-        const ncx = node.x + NODE_W / 2;
-        const ncy = node.y + NODE_H / 2;
+      {PROVIDERS.map((node) => {
+        const ncx = node.rect.x + node.rect.w / 2;
+        const ncy = node.rect.y + node.rect.h / 2;
         return (
-          <g key={node.lines.join()}>
+          <g key={node.slug} pointerEvents="none">
             <line
               x1={ncx}
               y1={ncy}
@@ -60,7 +48,7 @@ export default function InterfacesDiagram() {
               strokeWidth={node.monetised ? 1.5 : 1}
               strokeDasharray={node.monetised ? undefined : "4 4"}
             />
-            {node.monetised && (
+            {node.monetised && !mini && (
               <g>
                 <rect
                   x={(ncx + CENTER.x) / 2 - 42}
@@ -90,87 +78,104 @@ export default function InterfacesDiagram() {
       })}
 
       {/* Provider nodes */}
-      {NODES.map((node) => {
-        const ncx = node.x + NODE_W / 2;
-        const ncy = node.y + NODE_H / 2;
+      {PROVIDERS.map((node, i) => {
+        const { x, y, w, h } = node.rect;
+        const ncx = x + w / 2;
+        const ncy = y + h / 2;
+        const isActive = active === node.slug;
+        const isHover = hovered === node.slug;
         return (
-          <g key={node.lines.join()}>
+          <g
+            key={node.slug}
+            onMouseEnter={() => setHovered(node.slug)}
+            onMouseLeave={() => setHovered(null)}
+            onClick={() => onSelect?.(node.slug)}
+            style={{ cursor: onSelect ? "pointer" : "default" }}
+            role={onSelect ? "button" : undefined}
+            aria-label={node.title}
+          >
             <rect
-              x={node.x}
-              y={node.y}
-              width={NODE_W}
-              height={NODE_H}
+              x={x}
+              y={y}
+              width={w}
+              height={h}
               fill="#f4f3f0"
-              stroke={node.monetised ? BLUE : HAIR}
-              strokeWidth={node.monetised ? 1.5 : 1}
+              stroke={
+                isActive || isHover ? BLUE : node.monetised ? BLUE : HAIR
+              }
+              strokeWidth={isActive || isHover ? 2 : node.monetised ? 1.5 : 1}
+              style={{ transition: "stroke .15s ease" }}
             />
-            {node.lines.map((line, i) => (
-              <text
-                key={i}
-                x={ncx}
-                y={
-                  ncy +
-                  5 +
-                  (i - (node.lines.length - 1) / 2) * 18
-                }
-                textAnchor="middle"
-                style={{
-                  fontFamily: MONO,
-                  fontSize: 11.5,
-                  fontWeight: 500,
-                  letterSpacing: "0.07em",
-                  textTransform: "uppercase",
-                  fill: INK,
-                }}
-              >
-                {line}
-              </text>
-            ))}
+            {mini && isActive && (
+              <rect x={x} y={y} width={w} height={h} fill={BLUE} opacity={0.9} />
+            )}
+            {!mini && (
+              <>
+                <text
+                  x={x + 10}
+                  y={y + 20}
+                  style={{
+                    fontFamily: MONO,
+                    fontSize: 10,
+                    fill: isHover || isActive ? BLUE : INK_300,
+                    transition: "fill .2s ease",
+                  }}
+                >
+                  {String(i + 1).padStart(2, "0")}
+                </text>
+                {node.planLabel.map((line, li, lines) => (
+                  <text
+                    key={li}
+                    x={ncx}
+                    y={ncy + 5 + (li - (lines.length - 1) / 2) * 18}
+                    textAnchor="middle"
+                    style={{
+                      fontFamily: MONO,
+                      fontSize: 11.5,
+                      fontWeight: 500,
+                      letterSpacing: "0.07em",
+                      textTransform: "uppercase",
+                      fill: INK,
+                    }}
+                  >
+                    {line}
+                  </text>
+                ))}
+              </>
+            )}
           </g>
         );
       })}
 
-      {/* The agency: an AI switchboard at the centre */}
-      <rect
-        x="238"
-        y="313"
-        width="244"
-        height="164"
-        fill="none"
-        stroke={BLUE}
-        strokeWidth="1.2"
-        strokeDasharray="3 4"
-      />
-      <rect x="250" y="325" width="220" height="140" fill="#0f1011" />
-      <text
-        x="360"
-        y="388"
-        textAnchor="middle"
-        style={{
-          fontFamily: MONO,
-          fontSize: 14,
-          fontWeight: 600,
-          letterSpacing: "0.09em",
-          textTransform: "uppercase",
-          fill: "#f7f7f5",
-        }}
-      >
-        The agency
-      </text>
-      <text
-        x="360"
-        y="412"
-        textAnchor="middle"
-        style={{
-          fontFamily: MONO,
-          fontSize: 10.5,
-          letterSpacing: "0.1em",
-          textTransform: "uppercase",
-          fill: "#7fa8f0",
-        }}
-      >
-        AI switchboard
-      </text>
+      {/* The agency at the centre */}
+      <g pointerEvents="none">
+        <rect
+          x="238"
+          y="313"
+          width="244"
+          height="164"
+          fill="none"
+          stroke={BLUE}
+          strokeWidth="1.2"
+          strokeDasharray="3 4"
+        />
+        <rect x="250" y="325" width="220" height="140" fill="#0f1011" />
+        <text
+          x="360"
+          y="400"
+          textAnchor="middle"
+          style={{
+            fontFamily: MONO,
+            fontSize: 14,
+            fontWeight: 600,
+            letterSpacing: "0.09em",
+            textTransform: "uppercase",
+            fill: "#f7f7f5",
+          }}
+        >
+          The agency
+        </text>
+      </g>
 
       {/* Plot boundary + margin note */}
       <rect
@@ -182,12 +187,15 @@ export default function InterfacesDiagram() {
         stroke={HAIR_SOFT}
         strokeWidth="1"
         strokeDasharray="3 6"
+        pointerEvents="none"
       />
-      <MarginNote
-        x={704}
-        y={395}
-        text="AIP · Plan 03 · The interfaces · wiring & referrals"
-      />
+      {!mini && (
+        <MarginNote
+          x={704}
+          y={395}
+          text="AIP · Plan 03 · The interfaces · wiring & referrals"
+        />
+      )}
     </svg>
   );
 }

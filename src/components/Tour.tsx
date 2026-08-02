@@ -2,9 +2,11 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
+  INTERFACES_PLAN,
   PEOPLE_PLAN,
   PLAN,
   ROOMS,
+  providerBySlug,
   roomBySlug,
   seatBySlug,
   type LayerId,
@@ -14,6 +16,7 @@ import FloorPlan from "./FloorPlan";
 import InterfacesDiagram from "./InterfacesDiagram";
 import LayerToggle from "./LayerToggle";
 import PeopleDiagram from "./PeopleDiagram";
+import ProviderView from "./ProviderView";
 import RoomView from "./RoomView";
 import SeatView from "./SeatView";
 
@@ -43,15 +46,30 @@ function zoomForSeat(slug: string) {
     : { scale: 2.4, origin: "50% 50%" };
 }
 
+function zoomForProvider(slug: string) {
+  const provider = providerBySlug(slug);
+  return provider
+    ? zoomForRect(provider.rect, INTERFACES_PLAN)
+    : { scale: 2.4, origin: "50% 50%" };
+}
+
 export default function Tour() {
   const [layer, setLayer] = useState<LayerId>("mechanics");
   const [activeRoom, setActiveRoom] = useState<string | null>(null);
   const [activeSeat, setActiveSeat] = useState<string | null>(null);
+  const [activeProvider, setActiveProvider] = useState<string | null>(null);
   const [zoom, setZoom] = useState({ scale: 2.4, origin: "50% 50%" });
   const [seatZoom, setSeatZoom] = useState({ scale: 2.4, origin: "50% 50%" });
+  const [providerZoom, setProviderZoom] = useState({
+    scale: 2.4,
+    origin: "50% 50%",
+  });
   /** "in" = drawing zooming into a detail; "out" = drawing re-entering. */
   const [planAnim, setPlanAnim] = useState<"none" | "in" | "out">("none");
   const [peopleAnim, setPeopleAnim] = useState<"none" | "in" | "out">("none");
+  const [interfacesAnim, setInterfacesAnim] = useState<"none" | "in" | "out">(
+    "none"
+  );
   const topRef = useRef<HTMLDivElement>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -119,13 +137,41 @@ export default function Tour() {
     [activeSeat]
   );
 
+  const selectProvider = useCallback(
+    (slug: string | null) => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+
+      const commit = (s: string | null) => {
+        setActiveProvider(s);
+        push(s ?? "interfaces");
+        scrollTop();
+      };
+
+      if (slug === null) {
+        setInterfacesAnim("out");
+        commit(null);
+        return;
+      }
+      setProviderZoom(zoomForProvider(slug));
+      if (activeProvider !== null) {
+        commit(slug);
+        return;
+      }
+      setInterfacesAnim("in");
+      timerRef.current = setTimeout(() => commit(slug), ZOOM_MS);
+    },
+    [activeProvider]
+  );
+
   const switchLayer = useCallback((id: LayerId) => {
     if (timerRef.current) clearTimeout(timerRef.current);
     setLayer(id);
     setActiveRoom(null);
     setActiveSeat(null);
+    setActiveProvider(null);
     setPlanAnim("none");
     setPeopleAnim("none");
+    setInterfacesAnim("none");
     push(id === "mechanics" ? null : id);
   }, []);
 
@@ -135,10 +181,12 @@ export default function Tour() {
       const slug = window.location.hash.replace("#", "");
       setPlanAnim("none");
       setPeopleAnim("none");
+      setInterfacesAnim("none");
       if (slug === "people" || slug === "interfaces") {
         setLayer(slug);
         setActiveRoom(null);
         setActiveSeat(null);
+        setActiveProvider(null);
         return;
       }
       const seat = seatBySlug(slug);
@@ -147,6 +195,16 @@ export default function Tour() {
         setLayer("people");
         setActiveSeat(seat.slug);
         setActiveRoom(null);
+        setActiveProvider(null);
+        return;
+      }
+      const provider = providerBySlug(slug);
+      if (provider) {
+        setProviderZoom(zoomForProvider(provider.slug));
+        setLayer("interfaces");
+        setActiveProvider(provider.slug);
+        setActiveRoom(null);
+        setActiveSeat(null);
         return;
       }
       const room = roomBySlug(slug);
@@ -154,6 +212,7 @@ export default function Tour() {
       setLayer("mechanics");
       setActiveRoom(room ? room.slug : null);
       setActiveSeat(null);
+      setActiveProvider(null);
     };
     fromHash();
     window.addEventListener("popstate", fromHash);
@@ -169,10 +228,18 @@ export default function Tour() {
       if (e.key !== "Escape") return;
       if (activeRoom) selectRoom(null);
       else if (activeSeat) selectSeat(null);
+      else if (activeProvider) selectProvider(null);
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [activeRoom, activeSeat, selectRoom, selectSeat]);
+  }, [
+    activeRoom,
+    activeSeat,
+    activeProvider,
+    selectRoom,
+    selectSeat,
+    selectProvider,
+  ]);
 
   if (activeRoom !== null) {
     return (
@@ -189,6 +256,22 @@ export default function Tour() {
       <div ref={topRef} style={{ scrollMarginTop: 24 }}>
         <div key={activeSeat} style={{ animation: `room-enter 450ms ${EASE} both` }}>
           <SeatView seat={seatBySlug(activeSeat)!} onSelect={selectSeat} />
+        </div>
+      </div>
+    );
+  }
+
+  if (activeProvider !== null) {
+    return (
+      <div ref={topRef} style={{ scrollMarginTop: 24 }}>
+        <div
+          key={activeProvider}
+          style={{ animation: `room-enter 450ms ${EASE} both` }}
+        >
+          <ProviderView
+            provider={providerBySlug(activeProvider)!}
+            onSelect={selectProvider}
+          />
         </div>
       </div>
     );
@@ -229,38 +312,32 @@ export default function Tour() {
       )}
 
       {layer === "interfaces" && (
-        <div key="interfaces" style={{ animation: `room-enter 450ms ${EASE} both` }}>
+        <div
+          key="interfaces"
+          style={{
+            transformOrigin: providerZoom.origin,
+            ["--zoom-scale" as string]: providerZoom.scale,
+            animation:
+              interfacesAnim === "in"
+                ? `plan-zoom-in ${ZOOM_MS}ms ${EASE} forwards`
+                : interfacesAnim === "out"
+                  ? `plan-zoom-out 550ms ${EASE} both`
+                  : `room-enter 450ms ${EASE} both`,
+          }}
+        >
           <div style={{ maxWidth: 620, margin: "0 auto" }}>
-            <InterfacesDiagram />
+            <InterfacesDiagram active={null} onSelect={selectProvider} />
           </div>
-          <div
+          <p
+            className="kicker"
             style={{
-              border: "1px dashed var(--hairline-18)",
-              padding: "24px 28px",
-              maxWidth: 620,
-              margin: "48px auto 0",
+              textAlign: "center",
+              color: "var(--ink-300)",
+              marginTop: 28,
             }}
           >
-            <div
-              className="kicker"
-              style={{ color: "var(--ink-500)", fontWeight: 500, marginBottom: 12 }}
-            >
-              Under renovation · content lands in v1
-            </div>
-            <p
-              style={{
-                fontSize: 14.5,
-                lineHeight: 1.65,
-                color: "var(--ink-500)",
-                margin: 0,
-              }}
-            >
-              This layer is still being drafted. It will map every external
-              relationship (boards, photography, EPC, AML, conveyancing,
-              mortgages, removals), what the AI switchboard automates in each,
-              and where referral revenue is being left on the table today.
-            </p>
-          </div>
+            Click a provider to see how the money flows
+          </p>
         </div>
       )}
 

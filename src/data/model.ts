@@ -60,8 +60,8 @@ export const LAYERS: {
     num: "03",
     label: "The interfaces",
     description:
-      "The wiring: how AI connects the agency to boards, solicitors and mortgage advisors, and monetises those relationships.",
-    drafted: false,
+      "The wiring: every external provider the agency works with, how the money flows, and which relationships are revenue streams.",
+    drafted: true,
   },
 ];
 
@@ -741,4 +741,326 @@ export const SEATS: Seat[] = [
 
 export function seatBySlug(slug: string): Seat | undefined {
   return SEATS.find((s) => s.slug === slug);
+}
+
+/* ------------------------------------------------------------------ */
+/* The interfaces: external providers on the wiring diagram, each      */
+/* with its own page covering what they are, how they work with the   */
+/* agency, and how the money flows.                                   */
+/* ------------------------------------------------------------------ */
+
+export interface Provider {
+  slug: string;
+  title: string;
+  /** Label lines on the wiring diagram. */
+  planLabel: string[];
+  /** Referral revenue flows down this wire. */
+  monetised: boolean;
+  summary: string;
+  blocks: Block[];
+  /** Rect on the interfaces drawing, in viewBox units. */
+  rect: { x: number; y: number; w: number; h: number };
+}
+
+export const INTERFACES_PLAN = { w: 720, h: 790 } as const;
+
+const PROVIDER_W = 180;
+const PROVIDER_H = 78;
+
+export const PROVIDERS: Provider[] = [
+  {
+    slug: "portals",
+    title: "The portals",
+    planLabel: ["Portals"],
+    monetised: false,
+    summary:
+      "The shop window: where nearly all demand comes from, and the biggest marketing bill the agency pays.",
+    rect: { x: 20, y: 40, w: PROVIDER_W, h: PROVIDER_H },
+    blocks: [
+      {
+        kind: "lead",
+        text: "The property portals: Rightmove, Zoopla and OnTheMarket. The shop window for almost every buyer in the country, and the single most important source of demand an agency has.",
+      },
+      { kind: "h", text: "How they work with the agency" },
+      {
+        kind: "p",
+        text: "Listings are pushed to the portals automatically through the CRM integration. Everything flows back the other way as enquiries: viewing requests and valuation leads land in the CRM inbox, and the portals supply performance data on how each listing is doing.",
+      },
+      {
+        kind: "p",
+        text: "Portal enquiries are shared. A valuation lead typically lands with around six agents at once, so speed of response matters more here than anywhere else in the business.",
+      },
+      { kind: "h", text: "The money" },
+      {
+        kind: "p",
+        text: "Money flows one way: out. The portals charge a per-branch monthly subscription, and Rightmove is the biggest single marketing overhead most agencies carry, often well over £1,500 a month per branch and rising every year. Agencies pay it because the buyers are there and nowhere else.",
+      },
+      {
+        kind: "banner",
+        label: "Cost centre",
+        text: "No referral revenue. The return is demand: a steady flow of viewing and valuation enquiries.",
+      },
+      {
+        kind: "callout",
+        tone: "ai",
+        label: "Where the agent layer helps",
+        body: "Answering every portal enquiry within 60 seconds, monitoring listing performance, and flagging listings that are not pulling viewings, so the subscription is never wasted.",
+      },
+    ],
+  },
+  {
+    slug: "photographer",
+    title: "Photographer",
+    planLabel: ["Photographer"],
+    monetised: false,
+    summary:
+      "Per-instruction photography and video: usually the pacing item between a signed agreement and a live listing.",
+    rect: { x: 270, y: 40, w: PROVIDER_W, h: PROVIDER_H },
+    blocks: [
+      {
+        kind: "lead",
+        text: "A professional property photographer, usually a local freelancer or small firm, covering photography plus a walkthrough or video where the marketing package includes one.",
+      },
+      { kind: "h", text: "How they work with the agency" },
+      {
+        kind: "p",
+        text: "Booked per instruction as part of taking a property on. The agency coordinates access with the vendor, chases the edited shots, and quality-checks them before the listing goes live. In practice photography is usually what sets the pace between a signed agreement and a live listing.",
+      },
+      { kind: "h", text: "The money" },
+      {
+        kind: "p",
+        text: "A per-shoot fee, typically somewhere around £100 to £200 depending on the property and whether video is included. Most agencies absorb it inside the commission; some charge it to the vendor as part of a premium marketing package.",
+      },
+      {
+        kind: "banner",
+        label: "Cost centre",
+        text: "A cost of taking on stock. Good photography pays back through viewings, not through any fee.",
+      },
+      {
+        kind: "callout",
+        tone: "ai",
+        label: "Where the agent layer helps",
+        body: "Booking the shoot, coordinating access with the vendor, and chasing the turnaround automatically, so photography stops being the bottleneck in going live.",
+      },
+    ],
+  },
+  {
+    slug: "epc-floorplan",
+    title: "EPC & floorplan",
+    planLabel: ["EPC &", "floorplan"],
+    monetised: false,
+    summary: "The legal paperwork of marketing: no EPC, no listing.",
+    rect: { x: 520, y: 40, w: PROVIDER_W, h: PROVIDER_H },
+    blocks: [
+      {
+        kind: "lead",
+        text: "A domestic energy assessor who produces the Energy Performance Certificate, usually drawing the floorplan on the same visit. An EPC is a legal requirement for marketing a property.",
+      },
+      { kind: "h", text: "How they work with the agency" },
+      {
+        kind: "p",
+        text: "Ordered at take-on. The assessor visits once, and the certificate and floorplan come back within a few days. A property cannot be fully marketed without an EPC in place or at least commissioned, so a slow assessor delays the listing.",
+      },
+      { kind: "h", text: "The money" },
+      {
+        kind: "p",
+        text: "A modest per-visit fee, typically £60 to £120 for the EPC and floorplan together. Some agencies recharge it to the vendor at cost or with a small margin, but nobody is building a business on it.",
+      },
+      {
+        kind: "banner",
+        label: "Cost centre",
+        text: "A compliance cost. At most a small recharge margin; the real value is an on-time listing.",
+      },
+      {
+        kind: "callout",
+        tone: "ai",
+        label: "Where the agent layer helps",
+        body: "Ordering the assessment the moment the agreement is signed, chasing the certificate, and attaching it to the listing without anyone having to think about it.",
+      },
+    ],
+  },
+  {
+    slug: "board-contractor",
+    title: "Board contractor",
+    planLabel: ["Board", "contractor"],
+    monetised: false,
+    summary:
+      "For sale and sold boards: a tiny cost that doubles as street-level advertising.",
+    rect: { x: 20, y: 356, w: PROVIDER_W, h: PROVIDER_H },
+    blocks: [
+      {
+        kind: "lead",
+        text: "The contractor who puts up, changes and takes down the boards: for sale, sold, and back again.",
+      },
+      { kind: "h", text: "How they work with the agency" },
+      {
+        kind: "p",
+        text: "Instructed at three moments in every sale: erect the board when the listing goes live, switch the slip to sold when the sale is agreed, and collect the board after completion. Boards are also marketing. A street of your boards is the cheapest brand awareness an agency can buy, and sold boards generate valuation enquiries from the neighbours.",
+      },
+      { kind: "h", text: "The money" },
+      {
+        kind: "p",
+        text: "A small fee per board movement, typically a few pounds each time, billed monthly. Pure cost, but one with a marketing return attached.",
+      },
+      {
+        kind: "banner",
+        label: "Cost centre",
+        text: "A small cost that doubles as street-level advertising.",
+      },
+      {
+        kind: "callout",
+        tone: "ai",
+        label: "Where the agent layer helps",
+        body: "Triggering the right board instruction automatically at every pipeline transition, so boards never lag the deal and the sold slip goes up the day the sale is agreed.",
+      },
+    ],
+  },
+  {
+    slug: "aml-provider",
+    title: "AML provider",
+    planLabel: ["AML provider"],
+    monetised: false,
+    summary:
+      "The compliance checks the law requires before marketing a property and before completing a sale.",
+    rect: { x: 520, y: 356, w: PROVIDER_W, h: PROVIDER_H },
+    blocks: [
+      {
+        kind: "lead",
+        text: "An outsourced anti-money-laundering service that runs the identity and source-of-funds checks the agency is legally required to perform.",
+      },
+      { kind: "h", text: "How they work with the agency" },
+      {
+        kind: "p",
+        text: "Triggered at take-on for vendors, and again for buyers once a sale is agreed. The checks are digital: the provider verifies ID documents, screens against sanctions lists, and flags anything that needs a human decision. The agency cannot legally market the property or progress the sale until the checks pass.",
+      },
+      { kind: "h", text: "The money" },
+      {
+        kind: "p",
+        text: "A per-check fee, typically £10 to £30. Many agencies recharge it to the client, sometimes with a small margin, but it exists to keep the agency compliant, not to make money.",
+      },
+      {
+        kind: "banner",
+        label: "Cost centre",
+        text: "A compliance cost with, at best, a small recharge margin.",
+      },
+      {
+        kind: "callout",
+        tone: "ai",
+        label: "Where the agent layer helps",
+        body: "Triggering checks at the right moments, chasing outstanding documents, and flagging failures, so compliance never holds up a listing or a sale.",
+      },
+    ],
+  },
+  {
+    slug: "conveyancer",
+    title: "Conveyancer",
+    planLabel: ["Conveyancer"],
+    monetised: true,
+    summary:
+      "The legal engine of the sale, and a referral fee the agency can earn twice per transaction.",
+    rect: { x: 20, y: 672, w: PROVIDER_W, h: PROVIDER_H },
+    blocks: [
+      {
+        kind: "lead",
+        text: "The solicitors or licensed conveyancers who do the legal work of transferring the property: contracts, searches, enquiries, exchange and completion.",
+      },
+      { kind: "h", text: "How they work with the agency" },
+      {
+        kind: "p",
+        text: "Both sides instruct one once a sale is agreed. From that point the sales progressor works through the chain of conveyancers to find whoever is currently blocking progress and clear it. The conveyancer is the party the agency chases more than any other.",
+      },
+      { kind: "h", text: "The money" },
+      {
+        kind: "p",
+        text: "Two flows. The client pays the conveyancer directly for the legal work. And when the agency recommends a partner firm, the firm pays the agency a referral fee, typically £150 to £300 per instruction, which must be disclosed to the client. With a vendor and a buyer on every sale, there are two referral opportunities per transaction.",
+      },
+      {
+        kind: "banner",
+        label: "Revenue stream",
+        text: "Referral fees of roughly £150 to £300 per instruction, up to twice per sale.",
+      },
+      {
+        kind: "callout",
+        tone: "ai",
+        label: "Where the agent layer helps",
+        body: "Making the recommendation at the right moment on every deal so no referral is missed, then chasing the firm on a reliable cadence once instructed.",
+      },
+    ],
+  },
+  {
+    slug: "mortgage-advisor",
+    title: "Mortgage advisor",
+    planLabel: ["Mortgage", "advisor"],
+    monetised: true,
+    summary:
+      "The most reliable referral fee in the business, captured far less often than it should be.",
+    rect: { x: 270, y: 672, w: PROVIDER_W, h: PROVIDER_H },
+    blocks: [
+      {
+        kind: "lead",
+        text: "A mortgage broker, either in-house or a partner firm, who arranges the buyer's mortgage.",
+      },
+      { kind: "h", text: "How they work with the agency" },
+      {
+        kind: "p",
+        text: "The introduction happens at the viewing stage. Qualifying a buyer surfaces whether they have a mortgage in principle; if they do not, the negotiator books them a meeting with the advisor. A buyer with financing arranged is also a stronger buyer for the vendor, so the introduction helps the sale as well as the fee line.",
+      },
+      { kind: "h", text: "The money" },
+      {
+        kind: "p",
+        text: "The advisor pays the agency a referral fee for every completed introduction, worth around £400. It is one of the most reliable revenue streams an agency has, and one of the most under-collected, because the qualifying questions get skipped when negotiators are busy.",
+      },
+      {
+        kind: "banner",
+        label: "Revenue stream",
+        text: "Around £400 per completed introduction. Captured consistently, it adds up fast.",
+      },
+      {
+        kind: "callout",
+        tone: "ai",
+        label: "Where the agent layer helps",
+        body: "Qualifying every single enquiry the moment it lands, so every buyer without a mortgage in principle becomes an introduction rather than a missed fee.",
+      },
+    ],
+  },
+  {
+    slug: "removals-trades",
+    title: "Removals & trades",
+    planLabel: ["Removals", "& trades"],
+    monetised: true,
+    summary:
+      "The moving-day economy: small commissions on relationships the agency already owns.",
+    rect: { x: 520, y: 672, w: PROVIDER_W, h: PROVIDER_H },
+    blocks: [
+      {
+        kind: "lead",
+        text: "Removal firms, cleaners and trades: everyone a mover needs in the fortnight either side of completion.",
+      },
+      { kind: "h", text: "How they work with the agency" },
+      {
+        kind: "p",
+        text: "The agency is standing next to two households who are about to move and asking who to use. Recommendations happen naturally around exchange and completion, when dates firm up, and they are part of good service as much as a commercial play.",
+      },
+      { kind: "h", text: "The money" },
+      {
+        kind: "p",
+        text: "Partner firms pay a commission per booked referral. Individually small, tens of pounds rather than hundreds, but pure margin on relationships the agency already owns. Today it is barely captured at all, because nobody's job is to remember it at the busiest moment of the deal.",
+      },
+      {
+        kind: "banner",
+        label: "Revenue stream",
+        text: "Small per-deal commissions that are almost pure margin, and almost never collected today.",
+      },
+      {
+        kind: "callout",
+        tone: "ai",
+        label: "Where the agent layer helps",
+        body: "Prompting the recommendation automatically when exchange dates land, and logging the introduction so the commission actually gets invoiced.",
+      },
+    ],
+  },
+];
+
+export function providerBySlug(slug: string): Provider | undefined {
+  return PROVIDERS.find((p) => p.slug === slug);
 }
