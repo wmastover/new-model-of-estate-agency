@@ -715,11 +715,8 @@ export default function FlowAtlas() {
                   key={g.node.id}
                   className="atlas-rise"
                   style={{
-                    opacity: on ? 1 : 0.16,
                     cursor: "pointer",
                     filter: theme.nodeFilter,
-                    transform: `translateY(${lift}px)`,
-                    transition: "opacity .4s ease, transform .25s ease",
                     animationDelay: `${g.depth * 45}ms`,
                   }}
                   onPointerEnter={() => !dragRef.current && setHovered(g.node.id)}
@@ -727,6 +724,16 @@ export default function FlowAtlas() {
                   onClick={() => onNodeClick(g.node.id)}
                   role="button"
                   aria-label={g.node.label.join(" ")}
+                >
+                {/* Inner group: the entry animation on the parent fills both
+                    directions, so its final keyframe would override inline
+                    opacity/transform. Dimming and the hover lift live here. */}
+                <g
+                  style={{
+                    opacity: on ? 1 : 0.16,
+                    transform: `translateY(${lift}px)`,
+                    transition: "opacity .4s ease, transform .25s ease",
+                  }}
                 >
                   <polygon
                     points={g.left}
@@ -796,6 +803,7 @@ export default function FlowAtlas() {
                       {line}
                     </text>
                   ))}
+                </g>
                 </g>
               );
             })}
