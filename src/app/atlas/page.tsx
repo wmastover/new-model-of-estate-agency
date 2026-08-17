@@ -1,11 +1,12 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import FlowAtlas from "../../components/FlowAtlas";
+import { ATLAS_MAPS } from "../../data/atlas";
 
 export const metadata: Metadata = {
   title: "The Atlas · A New Model of Estate Agency",
   description:
-    "A three-dimensional flow map of the eight jobs of a house sale and the providers wired around them, in three stylistic variants. By Applied Intelligence Partners.",
+    "Three isometric maps of a modern estate agency: the organisations it trades with, the people inside it, and the process a sale runs through. By Applied Intelligence Partners.",
 };
 
 export default function AtlasPage() {
@@ -93,7 +94,7 @@ export default function AtlasPage() {
             color: "var(--ink-900)",
           }}
         >
-          A three-dimensional map of the sale.
+          Three maps of one agency.
         </h1>
         <p
           style={{
@@ -104,23 +105,59 @@ export default function AtlasPage() {
             margin: 0,
           }}
         >
-          The same eight jobs, drawn as a city of modules wired together by the
-          flows that carry a sale through it. Towers are colour-coded by who
-          leads the work; lanes carry the live payloads between them. Pick a
-          flow to trace one journey, click a module to read its section, and
-          switch between three drawings of the same machine.
+          The model contains three different kinds of thing, so it gets three
+          different maps: the organisations the agency trades with, the people
+          who do the work, and the process a sale runs through. Switch maps in
+          the top-left corner, pick a flow to trace one journey, click a tower
+          to read its section, and redraw the whole thing in three styles.
         </p>
       </header>
 
       <main style={{ flex: 1 }}>
         <FlowAtlas />
 
+        <section style={{ margin: "40px 0 0", maxWidth: 720 }}>
+          <div
+            className="kicker"
+            style={{ color: "var(--ink-300)", marginBottom: 16 }}
+          >
+            One drawing per kind of thing
+          </div>
+          <div style={{ display: "grid", gap: 24 }}>
+            {ATLAS_MAPS.map((m, i) => (
+              <div key={m.id}>
+                <div
+                  className="mono"
+                  style={{
+                    fontSize: 14,
+                    fontWeight: 600,
+                    color: "var(--ink-800)",
+                    marginBottom: 6,
+                  }}
+                >
+                  {String(i + 1).padStart(2, "0")} · {m.label}
+                </div>
+                <p
+                  style={{
+                    fontSize: 14,
+                    lineHeight: 1.55,
+                    color: "var(--ink-500)",
+                    margin: 0,
+                  }}
+                >
+                  {m.description}
+                </p>
+              </div>
+            ))}
+          </div>
+        </section>
+
         <section style={{ margin: "40px 0 24px", maxWidth: 720 }}>
           <div
             className="kicker"
             style={{ color: "var(--ink-300)", marginBottom: 16 }}
           >
-            Three drawings of one machine
+            Three renderings of each map
           </div>
           <div
             style={{
