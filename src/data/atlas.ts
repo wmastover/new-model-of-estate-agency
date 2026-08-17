@@ -1,16 +1,23 @@
 /**
- * The Atlas: a three-dimensional flow map of the sale.
+ * The Atlas: three isometric maps of the agency, one per kind of thing.
  *
- * Turns the eight jobs of the sale (from `model.ts`) plus the external
- * providers into a graph of towers on an isometric grid, wired together by
- * lanes that carry animated payloads. The same graph is rendered by
- * `FlowAtlas` in three stylistic variants (blueprint, ledger, circuit).
+ * The model contains three different kinds of entity, and mixing them on
+ * one drawing made the drawing lie. So the atlas is three maps:
  *
- * Content is a condensed reading of the model; each node deep-links back to
- * its full section in the main tour via `slug`.
+ *  - Organisations: the agency as one company among the companies it
+ *    trades with, and how the money flows between them (from `PROVIDERS`).
+ *  - People: the seats inside the agency, the agent layer they delegate
+ *    to, and the vendor and buyer everyone serves (from `SEATS`).
+ *  - Process: the eight jobs a sale passes through, in order, with the
+ *    repeat-business loop (from `ROOMS`).
+ *
+ * All three maps share one geometry and one renderer (`FlowAtlas`), which
+ * draws each in three stylistic variants (blueprint, ledger, circuit).
+ * Content is a condensed reading of the model; nodes deep-link back to
+ * their full section in the main tour via `slug`.
  */
 
-/** Who leads the work, plus map-only tones for wiring and revenue. */
+/** Colour role of a tower. What it means is defined per map by `legend`. */
 export type AtlasTone = "human" | "hybrid" | "ai" | "neutral" | "revenue";
 
 export interface AtlasNode {
@@ -21,9 +28,9 @@ export interface AtlasNode {
   label: string[];
   /** Small mono sub-label under the title in the info panel. */
   meta: string;
-  kind: "job" | "provider" | "origin";
+  kind: "job" | "seat" | "client" | "agent" | "agency" | "org";
   tone: AtlasTone;
-  /** Footprint origin on the grid (integer grid units). */
+  /** Footprint origin on the grid (grid units). */
   gx: number;
   gy: number;
   /** Footprint size in grid units. */
@@ -41,7 +48,16 @@ export interface AtlasEdge {
   id: string;
   from: string;
   to: string;
-  kind: "pipeline" | "service" | "referral" | "loop";
+  /**
+   * Visual style of the lane. What each style means is defined per map:
+   *  - "flow": solid, the main sequence of the map
+   *  - "support": dotted, supporting wiring
+   *  - "money": gold, the relationships worth money
+   *  - "cadence": dashed, a recurring rhythm (oversight, repeat business)
+   */
+  kind: "flow" | "support" | "money" | "cadence";
+  /** Horizontal bow of the lane in px; 0 or absent draws a straight lane. */
+  bend?: number;
 }
 
 export interface AtlasFlow {
@@ -50,6 +66,23 @@ export interface AtlasFlow {
   note: string;
   /** Edge ids activated by this flow. Empty means "all edges". */
   edges: string[];
+}
+
+export interface AtlasMapDef {
+  id: string;
+  /** Tab label in the HUD. */
+  label: string;
+  /** One-line answer to "what am I looking at". */
+  note: string;
+  /** Longer copy for the page below the drawing. */
+  description: string;
+  nodes: AtlasNode[];
+  edges: AtlasEdge[];
+  flows: AtlasFlow[];
+  /** Tone swatches shown in the legend, with map-specific meanings. */
+  legend: { tone: AtlasTone; label: string }[];
+  /** Badge labels in the info panel, per tone, map-specific. */
+  toneLabels: Partial<Record<AtlasTone, string>>;
 }
 
 /* ------------------------------------------------------------------ */
@@ -74,25 +107,405 @@ export function iso(gx: number, gy: number, gz = 0): Pt {
 }
 
 /* ------------------------------------------------------------------ */
-/* Nodes.                                                              */
+/* Map 1: Organisations. The agency in the middle of the market,       */
+/* ringed by the companies it trades with. Lane grammar: solid is      */
+/* demand coming in, dotted is money going out, gold is money coming   */
+/* back in as referral fees.                                           */
 /* ------------------------------------------------------------------ */
 
-export const NODES: AtlasNode[] = [
+const ORG_NODES: AtlasNode[] = [
   {
-    id: "thesis",
+    id: "agency",
     slug: "the-thesis",
-    label: ["The", "thesis"],
-    meta: "Origin · the kerb",
-    kind: "origin",
+    label: ["The", "agency"],
+    meta: "The business · centre of the map",
+    kind: "agency",
+    tone: "hybrid",
+    gx: 3,
+    gy: 3,
+    fw: 2,
+    fh: 2,
+    height: 3.4,
+    blurb:
+      "The estate agency itself: the company every other organisation on this map bills, supplies or pays.",
+  },
+  {
+    id: "portals",
+    slug: "portals",
+    label: ["Portals"],
+    meta: "Supplier · the biggest bill",
+    kind: "org",
     tone: "neutral",
-    gx: 1,
+    gx: 4,
     gy: 0,
     fw: 1,
     fh: 1,
-    height: 1.4,
-    index: "00",
-    blurb: "Where the tour starts: the whole business, split into eight jobs.",
+    height: 2.2,
+    blurb:
+      "Rightmove, Zoopla and OnTheMarket. Nearly all demand arrives through them, and they charge the biggest marketing bill the agency pays.",
   },
+  {
+    id: "photographer",
+    slug: "photographer",
+    label: ["Photo-", "grapher"],
+    meta: "Supplier · per instruction",
+    kind: "org",
+    tone: "neutral",
+    gx: 7,
+    gy: 1,
+    fw: 1,
+    fh: 1,
+    height: 1.1,
+    blurb:
+      "Per-instruction photography and video, usually the pacing item between a signed agreement and a live listing.",
+  },
+  {
+    id: "epc",
+    slug: "epc-floorplan",
+    label: ["EPC &", "floorplan"],
+    meta: "Supplier · compliance",
+    kind: "org",
+    tone: "neutral",
+    gx: 8,
+    gy: 4,
+    fw: 1,
+    fh: 1,
+    height: 1.0,
+    blurb:
+      "The energy assessor behind the legal paperwork of marketing. No EPC, no listing.",
+  },
+  {
+    id: "aml",
+    slug: "aml-provider",
+    label: ["AML", "provider"],
+    meta: "Supplier · compliance",
+    kind: "org",
+    tone: "neutral",
+    gx: 7,
+    gy: 7,
+    fw: 1,
+    fh: 1,
+    height: 1.1,
+    blurb:
+      "The outsourced identity and source-of-funds checks the law requires before marketing and completion.",
+  },
+  {
+    id: "removals",
+    slug: "removals-trades",
+    label: ["Removals", "& trades"],
+    meta: "Partner · goodwill",
+    kind: "org",
+    tone: "neutral",
+    gx: 4,
+    gy: 8,
+    fw: 1,
+    fh: 1,
+    height: 0.9,
+    blurb:
+      "The moving-day economy. Recommendations are good service first; the tens of pounds in commission are not the point.",
+  },
+  {
+    id: "board",
+    slug: "board-contractor",
+    label: ["Board", "contractor"],
+    meta: "Supplier · advertising",
+    kind: "org",
+    tone: "neutral",
+    gx: 1,
+    gy: 7,
+    fw: 1,
+    fh: 1,
+    height: 0.9,
+    blurb:
+      "For sale and sold boards. A tiny cost that doubles as street-level advertising.",
+  },
+  {
+    id: "conveyancer",
+    slug: "conveyancer",
+    label: ["Convey-", "ancer"],
+    meta: "Partner · pays referral fees",
+    kind: "org",
+    tone: "revenue",
+    gx: 0,
+    gy: 4,
+    fw: 1,
+    fh: 1,
+    height: 1.6,
+    blurb:
+      "The legal engine of the sale, and a referral fee of £150 to £300 the agency can earn twice per transaction.",
+  },
+  {
+    id: "mortgage",
+    slug: "mortgage-advisor",
+    label: ["Mortgage", "advisor"],
+    meta: "Partner · pays referral fees",
+    kind: "org",
+    tone: "revenue",
+    gx: 1,
+    gy: 1,
+    fw: 1,
+    fh: 1,
+    height: 1.5,
+    blurb:
+      "~£400 per completed introduction. The most reliable, under-collected fee in the business.",
+  },
+];
+
+const ORG_EDGES: AtlasEdge[] = [
+  // Demand flowing into the business.
+  { id: "demand", from: "portals", to: "agency", kind: "flow", bend: 70 },
+
+  // Money going out: subscriptions, per-job fees, compliance costs.
+  { id: "out-portals", from: "agency", to: "portals", kind: "support" },
+  { id: "out-photo", from: "agency", to: "photographer", kind: "support" },
+  { id: "out-epc", from: "agency", to: "epc", kind: "support" },
+  { id: "out-aml", from: "agency", to: "aml", kind: "support" },
+  { id: "out-board", from: "agency", to: "board", kind: "support" },
+
+  // Goodwill: recommendations, not a real revenue line.
+  { id: "out-removals", from: "agency", to: "removals", kind: "support" },
+
+  // Money coming back in as referral fees.
+  { id: "in-conveyancer", from: "conveyancer", to: "agency", kind: "money" },
+  { id: "in-mortgage", from: "mortgage", to: "agency", kind: "money" },
+];
+
+const ORG_FLOWS: AtlasFlow[] = [
+  {
+    id: "all",
+    label: "The whole market",
+    note: "Every organisation the agency trades with, live at once.",
+    edges: [],
+  },
+  {
+    id: "demand",
+    label: "Where demand arrives",
+    note: "Enquiries flow in from the portals; almost nowhere else.",
+    edges: ["demand"],
+  },
+  {
+    id: "money-out",
+    label: "Money out",
+    note: "Subscriptions, per-instruction fees and compliance costs.",
+    edges: ["out-portals", "out-photo", "out-epc", "out-aml", "out-board"],
+  },
+  {
+    id: "money-in",
+    label: "Money in",
+    note: "Referral fees: the only wires on this map that pay the agency.",
+    edges: ["in-conveyancer", "in-mortgage"],
+  },
+  {
+    id: "compliance",
+    label: "The compliance wiring",
+    note: "EPC and AML: the checks the law requires before marketing and completion.",
+    edges: ["out-epc", "out-aml"],
+  },
+];
+
+/* ------------------------------------------------------------------ */
+/* Map 2: People. The seats in a row, the branch manager behind them,  */
+/* the agent layer as a low slab beneath them, and the vendor and      */
+/* buyer at the edges. Lane grammar: solid is the sale changing hands  */
+/* between seats, dotted is work delegated to the agent layer, gold is */
+/* the client-facing conversations the model refuses to automate,      */
+/* dashed is management oversight.                                     */
+/* ------------------------------------------------------------------ */
+
+const PEOPLE_NODES: AtlasNode[] = [
+  {
+    id: "branch",
+    slug: "branch-manager",
+    label: ["Branch", "manager"],
+    meta: "Seat · oversees every job",
+    kind: "seat",
+    tone: "human",
+    gx: 4,
+    gy: 0,
+    fw: 1,
+    fh: 1,
+    height: 3.4,
+    blurb:
+      "Owns the branch: the P&L, the standards, and the judgement calls nobody else should make.",
+  },
+  {
+    id: "valuation",
+    slug: "valuation-manager",
+    label: ["Valuation", "manager"],
+    meta: "Seat · owns jobs 01–02",
+    kind: "seat",
+    tone: "human",
+    gx: 1,
+    gy: 2,
+    fw: 1,
+    fh: 1,
+    height: 2.9,
+    blurb:
+      "Wins instructions: first through the door, best prepared in the living room. The most human seat in the branch.",
+  },
+  {
+    id: "admin",
+    slug: "admin-marketing",
+    label: ["Admin &", "marketing"],
+    meta: "Seat · owns jobs 03–04",
+    kind: "seat",
+    tone: "human",
+    gx: 3,
+    gy: 2,
+    fw: 1,
+    fh: 1,
+    height: 2.0,
+    blurb:
+      "Runs the machine that takes listings live and keeps viewings coming. The seat the agent layer changes most.",
+  },
+  {
+    id: "negotiator",
+    slug: "sales-negotiator",
+    label: ["Sales", "negotiator"],
+    meta: "Seat · owns jobs 05–06",
+    kind: "seat",
+    tone: "human",
+    gx: 5,
+    gy: 2,
+    fw: 1,
+    fh: 1,
+    height: 2.7,
+    blurb:
+      "Turns enquiries into offers: the viewing, the feedback call, and the referral value nobody captures consistently.",
+  },
+  {
+    id: "progressor",
+    slug: "sales-progressor",
+    label: ["Sales", "progressor"],
+    meta: "Seat · owns job 07",
+    kind: "seat",
+    tone: "human",
+    gx: 7,
+    gy: 2,
+    fw: 1,
+    fh: 1,
+    height: 2.5,
+    blurb:
+      "Holds agreed sales together for the three months between yes and keys: a chase and a counselling service, side by side.",
+  },
+  {
+    id: "agent-layer",
+    label: ["The agent layer"],
+    meta: "AI · works for every seat",
+    kind: "agent",
+    tone: "ai",
+    gx: 2,
+    gy: 4,
+    fw: 4,
+    fh: 1,
+    height: 0.7,
+    blurb:
+      "The AI workforce under the floor: every seat hands it the repetitive coverage work and keeps the judgement and the warmth.",
+  },
+  {
+    id: "vendor",
+    label: ["The", "vendor"],
+    meta: "Client · pays the fee",
+    kind: "client",
+    tone: "neutral",
+    gx: 0,
+    gy: 5,
+    fw: 1,
+    fh: 1,
+    height: 1.8,
+    blurb:
+      "The person selling the house, and the only person on this map who pays the agency. Every gold wire exists to keep them.",
+  },
+  {
+    id: "buyer",
+    label: ["The", "buyer"],
+    meta: "Client · buys the house",
+    kind: "client",
+    tone: "neutral",
+    gx: 8,
+    gy: 4,
+    fw: 1,
+    fh: 1,
+    height: 1.8,
+    blurb:
+      "Doesn't pay the agency's bills, but is an excellent long-term investment: today's buyer is a future vendor.",
+  },
+];
+
+const PEOPLE_EDGES: AtlasEdge[] = [
+  // The sale changing hands between seats, in job order.
+  { id: "h1", from: "valuation", to: "admin", kind: "flow" },
+  { id: "h2", from: "admin", to: "negotiator", kind: "flow" },
+  { id: "h3", from: "negotiator", to: "progressor", kind: "flow" },
+
+  // Work delegated to the agent layer.
+  { id: "d-branch", from: "branch", to: "agent-layer", kind: "support" },
+  { id: "d-valuation", from: "valuation", to: "agent-layer", kind: "support" },
+  { id: "d-admin", from: "admin", to: "agent-layer", kind: "support" },
+  { id: "d-negotiator", from: "negotiator", to: "agent-layer", kind: "support" },
+  { id: "d-progressor", from: "progressor", to: "agent-layer", kind: "support" },
+
+  // Management by exception.
+  { id: "o-valuation", from: "branch", to: "valuation", kind: "cadence" },
+  { id: "o-admin", from: "branch", to: "admin", kind: "cadence" },
+  { id: "o-negotiator", from: "branch", to: "negotiator", kind: "cadence" },
+  { id: "o-progressor", from: "branch", to: "progressor", kind: "cadence" },
+
+  // The client-facing conversations that stay human.
+  { id: "c-valuation-vendor", from: "valuation", to: "vendor", kind: "money" },
+  { id: "c-branch-vendor", from: "branch", to: "vendor", kind: "money", bend: -120 },
+  { id: "c-progressor-vendor", from: "progressor", to: "vendor", kind: "money", bend: -60 },
+  { id: "c-negotiator-buyer", from: "negotiator", to: "buyer", kind: "money" },
+  { id: "c-progressor-buyer", from: "progressor", to: "buyer", kind: "money" },
+];
+
+const PEOPLE_FLOWS: AtlasFlow[] = [
+  {
+    id: "all",
+    label: "The whole floor",
+    note: "Every seat, both clients and the agent layer, live at once.",
+    edges: [],
+  },
+  {
+    id: "handoffs",
+    label: "The sale changes hands",
+    note: "One instruction, four seats: valuation to admin to negotiator to progressor.",
+    edges: ["h1", "h2", "h3"],
+  },
+  {
+    id: "vendor",
+    label: "Serving the vendor",
+    note: "The conversations that win and keep the instruction. All human.",
+    edges: ["c-valuation-vendor", "c-branch-vendor", "c-progressor-vendor"],
+  },
+  {
+    id: "buyer",
+    label: "Serving the buyer",
+    note: "Viewings, offers and reassurance through the stressful middle.",
+    edges: ["c-negotiator-buyer", "c-progressor-buyer"],
+  },
+  {
+    id: "delegation",
+    label: "Work moving to agents",
+    note: "The repetitive coverage work every seat hands to the agent layer.",
+    edges: ["d-branch", "d-valuation", "d-admin", "d-negotiator", "d-progressor"],
+  },
+  {
+    id: "oversight",
+    label: "Management by exception",
+    note: "The manager steps in where a human changes the outcome, not to ask for status.",
+    edges: ["o-valuation", "o-admin", "o-negotiator", "o-progressor"],
+  },
+];
+
+/* ------------------------------------------------------------------ */
+/* Map 3: Process. The eight jobs of the sale as a serpentine          */
+/* pipeline, with completion feeding the next instruction. Lane        */
+/* grammar: solid is the sale moving to the next job, dashed is        */
+/* repeat business.                                                    */
+/* ------------------------------------------------------------------ */
+
+const PROCESS_NODES: AtlasNode[] = [
   {
     id: "booking",
     slug: "booking-valuations",
@@ -106,7 +519,8 @@ export const NODES: AtlasNode[] = [
     fh: 1,
     height: 3.2,
     index: "01",
-    blurb: "Getting a vendor to a face-to-face valuation. The most valuable thing an agency does.",
+    blurb:
+      "Getting a vendor to a face-to-face valuation. The most valuable thing an agency does.",
   },
   {
     id: "winning",
@@ -213,213 +627,127 @@ export const NODES: AtlasNode[] = [
     index: "08",
     blurb: "Handing over the keys, and the start of a long relationship.",
   },
-
-  /* External providers: the wiring around the pipeline. */
-  {
-    id: "portals",
-    slug: "portals",
-    label: ["Portals"],
-    meta: "Interface · cost centre",
-    kind: "provider",
-    tone: "neutral",
-    gx: 7,
-    gy: 0,
-    fw: 1,
-    fh: 1,
-    height: 1.7,
-    blurb: "Rightmove, Zoopla, OnTheMarket. Where nearly all demand comes from.",
-  },
-  {
-    id: "photographer",
-    slug: "photographer",
-    label: ["Photo-", "grapher"],
-    meta: "Interface · cost centre",
-    kind: "provider",
-    tone: "neutral",
-    gx: 7,
-    gy: 2,
-    fw: 1,
-    fh: 1,
-    height: 1.1,
-    blurb: "Per-instruction photography and video. Usually the pacing item to go live.",
-  },
-  {
-    id: "epc",
-    slug: "epc-floorplan",
-    label: ["EPC &", "floorplan"],
-    meta: "Interface · compliance",
-    kind: "provider",
-    tone: "neutral",
-    gx: 7,
-    gy: 4,
-    fw: 1,
-    fh: 1,
-    height: 1.0,
-    blurb: "The legal paperwork of marketing. No EPC, no listing.",
-  },
-  {
-    id: "aml",
-    slug: "aml-provider",
-    label: ["AML", "provider"],
-    meta: "Interface · compliance",
-    kind: "provider",
-    tone: "neutral",
-    gx: 7,
-    gy: 6,
-    fw: 1,
-    fh: 1,
-    height: 1.2,
-    blurb: "Identity and source-of-funds checks the law requires before marketing and completion.",
-  },
-  {
-    id: "removals",
-    slug: "removals-trades",
-    label: ["Removals", "& trades"],
-    meta: "Interface · goodwill",
-    kind: "provider",
-    tone: "neutral",
-    gx: 7,
-    gy: 8,
-    fw: 1,
-    fh: 1,
-    height: 0.9,
-    blurb: "The moving-day economy. Good service first, not a real revenue line.",
-  },
-  {
-    id: "board",
-    slug: "board-contractor",
-    label: ["Board", "contractor"],
-    meta: "Interface · advertising",
-    kind: "provider",
-    tone: "neutral",
-    gx: -1,
-    gy: 2,
-    fw: 1,
-    fh: 1,
-    height: 0.9,
-    blurb: "For sale and sold boards. A tiny cost that doubles as street-level advertising.",
-  },
-  {
-    id: "mortgage",
-    slug: "mortgage-advisor",
-    label: ["Mortgage", "advisor"],
-    meta: "Interface · revenue stream",
-    kind: "provider",
-    tone: "revenue",
-    gx: -1,
-    gy: 4,
-    fw: 1,
-    fh: 1,
-    height: 1.4,
-    blurb: "~£400 per completed introduction. The most reliable, under-collected fee in the business.",
-  },
-  {
-    id: "conveyancer",
-    slug: "conveyancer",
-    label: ["Convey-", "ancer"],
-    meta: "Interface · revenue stream",
-    kind: "provider",
-    tone: "revenue",
-    gx: -1,
-    gy: 6,
-    fw: 1,
-    fh: 1,
-    height: 1.5,
-    blurb: "The legal engine of the sale, and a referral fee the agency can earn twice per transaction.",
-  },
 ];
 
-export function atlasNodeById(id: string): AtlasNode | undefined {
-  return NODES.find((n) => n.id === id);
-}
-
-/* ------------------------------------------------------------------ */
-/* Edges.                                                              */
-/* ------------------------------------------------------------------ */
-
-export const EDGES: AtlasEdge[] = [
-  // The pipeline: the sale, job by job.
-  { id: "p0", from: "thesis", to: "booking", kind: "pipeline" },
-  { id: "p1", from: "booking", to: "winning", kind: "pipeline" },
-  { id: "p2", from: "winning", to: "takingon", kind: "pipeline" },
-  { id: "p3", from: "takingon", to: "marketing", kind: "pipeline" },
-  { id: "p4", from: "marketing", to: "viewings", kind: "pipeline" },
-  { id: "p5", from: "viewings", to: "negotiating", kind: "pipeline" },
-  { id: "p6", from: "negotiating", to: "progressing", kind: "pipeline" },
-  { id: "p7", from: "progressing", to: "completing", kind: "pipeline" },
+const PROCESS_EDGES: AtlasEdge[] = [
+  { id: "p1", from: "booking", to: "winning", kind: "flow" },
+  { id: "p2", from: "winning", to: "takingon", kind: "flow" },
+  { id: "p3", from: "takingon", to: "marketing", kind: "flow" },
+  { id: "p4", from: "marketing", to: "viewings", kind: "flow" },
+  { id: "p5", from: "viewings", to: "negotiating", kind: "flow" },
+  { id: "p6", from: "negotiating", to: "progressing", kind: "flow" },
+  { id: "p7", from: "progressing", to: "completing", kind: "flow" },
 
   // Repeat business: completion feeds the next instruction.
-  { id: "loop", from: "completing", to: "booking", kind: "loop" },
-
-  // Service wiring to external providers.
-  { id: "s-book-portals", from: "portals", to: "booking", kind: "service" },
-  { id: "s-take-photo", from: "takingon", to: "photographer", kind: "service" },
-  { id: "s-take-epc", from: "takingon", to: "epc", kind: "service" },
-  { id: "s-take-aml", from: "takingon", to: "aml", kind: "service" },
-  { id: "s-take-board", from: "takingon", to: "board", kind: "service" },
-  { id: "s-mkt-portals", from: "marketing", to: "portals", kind: "service" },
-  { id: "s-view-portals", from: "viewings", to: "portals", kind: "service" },
-  { id: "s-neg-board", from: "negotiating", to: "board", kind: "service" },
-  { id: "s-prog-aml", from: "progressing", to: "aml", kind: "service" },
-  { id: "s-comp-board", from: "completing", to: "board", kind: "service" },
-  { id: "s-comp-removals", from: "completing", to: "removals", kind: "service" },
-
-  // Referral revenue.
-  { id: "r-view-mortgage", from: "viewings", to: "mortgage", kind: "referral" },
-  { id: "r-prog-conveyancer", from: "progressing", to: "conveyancer", kind: "referral" },
+  { id: "repeat", from: "completing", to: "booking", kind: "cadence", bend: 340 },
 ];
 
-export function atlasEdgeById(id: string): AtlasEdge | undefined {
-  return EDGES.find((e) => e.id === id);
-}
-
-/* ------------------------------------------------------------------ */
-/* Flows: named journeys that light up a subset of the map.            */
-/* ------------------------------------------------------------------ */
-
-export const FLOWS: AtlasFlow[] = [
+const PROCESS_FLOWS: AtlasFlow[] = [
   {
     id: "all",
-    label: "The whole map",
-    note: "Every job and every wire, live at once.",
+    label: "The whole pipeline",
+    note: "All eight jobs in order, plus repeat business.",
     edges: [],
   },
   {
-    id: "sale",
-    label: "A house sells",
-    note: "The eight jobs in order, then repeat business.",
-    edges: ["p0", "p1", "p2", "p3", "p4", "p5", "p6", "p7", "loop"],
+    id: "instruction",
+    label: "Winning the instruction",
+    note: "Jobs 01–02: from first contact to a signature on the sofa.",
+    edges: ["p1"],
   },
   {
-    id: "lead",
-    label: "A lead is won",
-    note: "From a portal enquiry to a signed instruction.",
-    edges: ["s-book-portals", "p0", "p1"],
+    id: "to-market",
+    label: "Getting to market",
+    note: "Jobs 03–04: signed agreement to live listing pulling viewings.",
+    edges: ["p2", "p3"],
   },
   {
-    id: "listing",
-    label: "A listing goes live",
-    note: "Instruction to fully live on the portals.",
-    edges: [
-      "p2",
-      "s-take-photo",
-      "s-take-epc",
-      "s-take-aml",
-      "s-take-board",
-      "p3",
-      "s-mkt-portals",
-    ],
+    id: "to-offer",
+    label: "Finding the buyer",
+    note: "Jobs 05–06: enquiries qualified, viewings done, an offer accepted.",
+    edges: ["p4", "p5"],
   },
   {
-    id: "offer",
-    label: "An offer completes",
-    note: "Viewing feedback to keys in hand.",
-    edges: ["p5", "p6", "s-prog-aml", "r-prog-conveyancer", "p7", "s-comp-board", "s-comp-removals"],
+    id: "to-keys",
+    label: "Closing and completing",
+    note: "Jobs 07–08: three months of chasing and reassurance, then the keys.",
+    edges: ["p6", "p7"],
   },
   {
-    id: "money",
-    label: "The money",
-    note: "Where referral revenue actually flows.",
-    edges: ["r-view-mortgage", "r-prog-conveyancer"],
+    id: "repeat",
+    label: "Repeat business",
+    note: "A good completion is the cheapest valuation lead there is.",
+    edges: ["repeat"],
   },
 ];
+
+/* ------------------------------------------------------------------ */
+/* The three maps.                                                     */
+/* ------------------------------------------------------------------ */
+
+export const ATLAS_MAPS: AtlasMapDef[] = [
+  {
+    id: "organisations",
+    label: "Organisations",
+    note: "The companies the agency trades with, and how the money flows.",
+    description:
+      "The agency in the middle of its market. Around it, every organisation it trades with: the portals that supply nearly all demand, the suppliers it pays per instruction, the compliance providers the law requires, and the two partners that pay referral fees back. Dotted lanes are money out, gold lanes are money in.",
+    nodes: ORG_NODES,
+    edges: ORG_EDGES,
+    flows: ORG_FLOWS,
+    legend: [
+      { tone: "hybrid", label: "The agency" },
+      { tone: "neutral", label: "Cost centre" },
+      { tone: "revenue", label: "Pays the agency" },
+    ],
+    toneLabels: {
+      hybrid: "The agency",
+      neutral: "Cost centre",
+      revenue: "Revenue stream",
+    },
+  },
+  {
+    id: "people",
+    label: "People",
+    note: "The seats, the agent layer beneath them, and the two clients.",
+    description:
+      "Who actually does the work. Four seats pass the sale between them in job order, the branch manager oversees by exception, and the agent layer sits under the whole floor taking the repetitive coverage work. The vendor and buyer stand at the edges: the gold lanes are the client conversations the model refuses to automate.",
+    nodes: PEOPLE_NODES,
+    edges: PEOPLE_EDGES,
+    flows: PEOPLE_FLOWS,
+    legend: [
+      { tone: "human", label: "A seat (person)" },
+      { tone: "ai", label: "The agent layer" },
+      { tone: "neutral", label: "A client" },
+    ],
+    toneLabels: {
+      human: "Seat · a person",
+      ai: "The agent layer",
+      neutral: "Client",
+    },
+  },
+  {
+    id: "process",
+    label: "Process",
+    note: "The eight jobs a sale passes through, in order.",
+    description:
+      "What has to happen for a house to sell, drawn as a pipeline. Each tower is one of the eight jobs, colour-coded by who leads it under the model: human where trust wins business, AI where process wins margin, both together everywhere else. The dashed return lane is repeat business feeding the next instruction.",
+    nodes: PROCESS_NODES,
+    edges: PROCESS_EDGES,
+    flows: PROCESS_FLOWS,
+    legend: [
+      { tone: "human", label: "Human-led" },
+      { tone: "hybrid", label: "Human + AI" },
+      { tone: "ai", label: "AI-led" },
+    ],
+    toneLabels: {
+      human: "Human-led",
+      hybrid: "Human + AI",
+      ai: "AI-led",
+    },
+  },
+];
+
+export function atlasMapById(id: string): AtlasMapDef | undefined {
+  return ATLAS_MAPS.find((m) => m.id === id);
+}

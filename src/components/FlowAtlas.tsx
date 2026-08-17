@@ -9,12 +9,10 @@ import {
   type CSSProperties,
 } from "react";
 import {
-  EDGES,
+  ATLAS_MAPS,
   ELEV,
-  FLOWS,
-  NODES,
-  atlasNodeById,
   iso,
+  type AtlasMapDef,
   type AtlasNode,
   type AtlasTone,
   type Pt,
@@ -55,6 +53,8 @@ interface Theme {
   gridLine: string;
   gridMajor: string;
   accent: string;
+  /** Gold used for the money lanes. */
+  money: string;
   laneWidth: number;
   wireframe: boolean;
   nodeFilter?: string;
@@ -79,6 +79,7 @@ const THEMES: Theme[] = [
     gridLine: "rgba(150,195,255,0.14)",
     gridMajor: "rgba(170,210,255,0.28)",
     accent: "#bfe0ff",
+    money: "#ffe08a",
     laneWidth: 1.4,
     wireframe: true,
     nodeFilter: undefined,
@@ -119,6 +120,7 @@ const THEMES: Theme[] = [
     gridLine: "rgba(0,0,0,0.06)",
     gridMajor: "rgba(0,0,0,0.14)",
     accent: "#2f6fe0",
+    money: "#c6912f",
     laneWidth: 1.6,
     wireframe: false,
     nodeFilter: "drop-shadow(0 10px 14px rgba(20,24,32,0.16))",
@@ -152,6 +154,7 @@ const THEMES: Theme[] = [
     gridLine: "rgba(90,130,200,0.10)",
     gridMajor: "rgba(90,140,220,0.22)",
     accent: "#4d8df0",
+    money: "#ffd166",
     laneWidth: 1.5,
     wireframe: false,
     nodeFilter: "drop-shadow(0 0 7px rgba(77,141,240,0.30))",
@@ -182,7 +185,7 @@ const THEMES: Theme[] = [
 ];
 
 /* ------------------------------------------------------------------ */
-/* Geometry: projected towers, lanes and scene bounds (static).        */
+/* Geometry: projected towers, lanes and scene bounds, per map.        */
 /* ------------------------------------------------------------------ */
 
 interface NodeGeo {
@@ -235,8 +238,15 @@ function pointAt(pts: Pt[], t: number): Pt {
   return pts[pts.length - 1];
 }
 
-function buildGeometry() {
-  const nodeGeo: NodeGeo[] = NODES.map((node) => {
+interface GridRange {
+  gxMin: number;
+  gxMax: number;
+  gyMin: number;
+  gyMax: number;
+}
+
+function buildGeometry(map: AtlasMapDef) {
+  const nodeGeo: NodeGeo[] = map.nodes.map((node) => {
     const { gx, gy, fw, fh } = node;
     const H = node.height * ELEV;
     const A = iso(gx, gy, H);
@@ -260,13 +270,14 @@ function buildGeometry() {
   const centers = new Map<string, Pt>();
   nodeGeo.forEach((g) => centers.set(g.node.id, g.ground));
 
-  const edgeGeo: EdgeGeo[] = EDGES.map((e) => {
+  const edgeGeo: EdgeGeo[] = map.edges.map((e) => {
     const a = centers.get(e.from)!;
     const b = centers.get(e.to)!;
     let pts: Pt[];
-    if (e.kind === "loop") {
-      // A long arc bowing out to the right so it reads as a return path.
-      const cx = Math.max(a.x, b.x) + 260;
+    if (e.bend) {
+      // A quadratic arc bowing sideways from the midpoint, so parallel or
+      // return lanes read separately from the straight ones.
+      const cx = (a.x + b.x) / 2 + e.bend;
       const cy = (a.y + b.y) / 2;
       pts = [];
       const N = 26;
@@ -281,10 +292,7 @@ function buildGeometry() {
     } else {
       pts = [a, b];
     }
-    const path =
-      e.kind === "loop"
-        ? `M ${pts.map((p) => `${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(" L ")}`
-        : `M ${a.x.toFixed(1)} ${a.y.toFixed(1)} L ${b.x.toFixed(1)} ${b.y.toFixed(1)}`;
+    const path = `M ${pts.map((p) => `${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(" L ")}`;
     return { id: e.id, from: e.from, to: e.to, kind: e.kind, pts, path, length: polyLength(pts) };
   });
 
@@ -299,7 +307,7 @@ function buildGeometry() {
     maxX = Math.max(maxX, p.x);
     maxY = Math.max(maxY, p.y);
   };
-  NODES.forEach((n) => {
+  map.nodes.forEach((n) => {
     const H = n.height * ELEV;
     consider(iso(n.gx, n.gy, H));
     consider(iso(n.gx + n.fw, n.gy, H));
@@ -311,8 +319,19 @@ function buildGeometry() {
   });
   edgeGeo.forEach((e) => e.pts.forEach(consider));
 
+  // Ground grid extent, a few tiles beyond the towers.
+  const grid: GridRange = map.nodes.reduce<GridRange>(
+    (r, n) => ({
+      gxMin: Math.min(r.gxMin, Math.floor(n.gx) - 3),
+      gxMax: Math.max(r.gxMax, Math.ceil(n.gx + n.fw) + 3),
+      gyMin: Math.min(r.gyMin, Math.floor(n.gy) - 3),
+      gyMax: Math.max(r.gyMax, Math.ceil(n.gy + n.fh) + 3),
+    }),
+    { gxMin: Infinity, gxMax: -Infinity, gyMin: Infinity, gyMax: -Infinity },
+  );
+
   const bounds = { minX, minY, maxX, maxY };
-  return { nodeGeo, edgeGeo, bounds };
+  return { nodeGeo, edgeGeo, bounds, grid };
 }
 
 interface Payload {
@@ -325,7 +344,7 @@ interface Payload {
 function buildPayloads(edges: EdgeGeo[]): Payload[] {
   const out: Payload[] = [];
   edges.forEach((e) => {
-    const count = e.kind === "service" ? 1 : e.kind === "loop" ? 2 : 2;
+    const count = e.kind === "support" ? 1 : 2;
     const speed = 74; // px per second
     const period = Math.max(1.4, e.length / speed);
     for (let i = 0; i < count; i++) {
@@ -346,7 +365,13 @@ interface View {
 }
 
 export default function FlowAtlas() {
-  const { nodeGeo, edgeGeo, bounds } = useMemo(() => buildGeometry(), []);
+  const [mapId, setMapId] = useState<string>(ATLAS_MAPS[0].id);
+  const map = ATLAS_MAPS.find((m) => m.id === mapId)!;
+
+  const { nodeGeo, edgeGeo, bounds, grid } = useMemo(
+    () => buildGeometry(map),
+    [map],
+  );
   const edgeMap = useMemo(() => {
     const m = new Map<string, EdgeGeo>();
     edgeGeo.forEach((e) => m.set(e.id, e));
@@ -373,11 +398,18 @@ export default function FlowAtlas() {
   const [themeId, setThemeId] = useState<string>("circuit");
   const theme = THEMES.find((t) => t.id === themeId)!;
   const [flowId, setFlowId] = useState<string>("all");
-  const flow = FLOWS.find((f) => f.id === flowId)!;
+  const flow = map.flows.find((f) => f.id === flowId) ?? map.flows[0];
   const [paused, setPaused] = useState(false);
   const [selected, setSelected] = useState<string | null>(null);
   const [hovered, setHovered] = useState<string | null>(null);
   const [grabbing, setGrabbing] = useState(false);
+
+  const switchMap = useCallback((id: string) => {
+    setMapId(id);
+    setFlowId("all");
+    setSelected(null);
+    setHovered(null);
+  }, []);
 
   const activeEdges = useMemo(() => {
     if (flow.edges.length === 0) return null; // null => all active
@@ -424,6 +456,11 @@ export default function FlowAtlas() {
     viewRef.current = { ...initialView };
     applyCamera();
   }, [initialView, applyCamera]);
+
+  // Reframe the camera whenever the map (and so its bounds) changes.
+  useEffect(() => {
+    resetView();
+  }, [resetView]);
 
   // Position payloads once, statically, for reduced-motion users.
   const placePayloadsStatic = useCallback(() => {
@@ -583,7 +620,9 @@ export default function FlowAtlas() {
   const nodeActive = (id: string) => !activeNodes || activeNodes.has(id);
   const edgeActive = (id: string) => !activeEdges || activeEdges.has(id);
 
-  const selectedNode = selected ? atlasNodeById(selected) : null;
+  const selectedNode = selected
+    ? map.nodes.find((n) => n.id === selected) ?? null
+    : null;
 
   const wrapperStyle: CSSProperties = {
     position: "relative",
@@ -611,7 +650,7 @@ export default function FlowAtlas() {
         onPointerLeave={onPointerUp}
         onWheel={onWheel}
         role="application"
-        aria-label={`Three-dimensional flow map of the sale, ${theme.label} variant`}
+        aria-label={`${map.label} map, ${theme.label} variant`}
       >
         <svg
           viewBox={`0 0 ${VIEW_W} ${VIEW_H}`}
@@ -619,34 +658,29 @@ export default function FlowAtlas() {
           style={{ display: "block", width: "100%", height: "100%" }}
         >
           <g ref={cameraRef}>
-            <GroundGrid theme={theme} />
+            <GroundGrid theme={theme} grid={grid} />
 
             {/* Lanes on the floor, beneath the towers. */}
             <g>
               {edgeGeo.map((e) => {
                 const on = edgeActive(e.id);
-                const isRevenue = e.kind === "referral";
-                const isLoop = e.kind === "loop";
+                const isMoney = e.kind === "money";
                 return (
                   <path
                     key={e.id}
                     d={e.path}
                     fill="none"
-                    stroke={
-                      isRevenue
-                        ? theme.id === "ledger"
-                          ? "#c6912f"
-                          : theme.id === "blueprint"
-                            ? "#ffe08a"
-                            : "#ffd166"
-                        : theme.gridMajor
-                    }
-                    strokeWidth={theme.laneWidth * (isRevenue ? 1.5 : 1)}
+                    stroke={isMoney ? theme.money : theme.gridMajor}
+                    strokeWidth={theme.laneWidth * (isMoney ? 1.5 : 1)}
                     strokeDasharray={
-                      e.kind === "service" ? "2 7" : isLoop ? "9 8" : undefined
+                      e.kind === "support"
+                        ? "2 7"
+                        : e.kind === "cadence"
+                          ? "9 8"
+                          : undefined
                     }
                     strokeLinecap="round"
-                    opacity={on ? (isRevenue ? 0.9 : 0.65) : 0.09}
+                    opacity={on ? (isMoney ? 0.9 : 0.65) : 0.09}
                     style={{ transition: "opacity .4s ease" }}
                   />
                 );
@@ -721,7 +755,7 @@ export default function FlowAtlas() {
                       cx={g.crown.x}
                       cy={g.crown.y}
                       r={hot ? 4.5 : 3}
-                      fill={g.node.tone === "revenue" ? "#ffd166" : theme.accent}
+                      fill={g.node.tone === "revenue" ? theme.money : theme.accent}
                       className="atlas-beacon"
                     />
                   )}
@@ -851,10 +885,10 @@ export default function FlowAtlas() {
         {/* ---- HUD -------------------------------------------------- */}
         <TopBar
           theme={theme}
-          nodeCount={NODES.length}
-          laneCount={EDGES.length}
-          flowCount={FLOWS.length - 1}
-          flowId={flowId}
+          map={map}
+          mapId={mapId}
+          onMap={switchMap}
+          flowId={flow.id}
           onFlow={(id) => {
             setFlowId(id);
             setSelected(null);
@@ -866,6 +900,7 @@ export default function FlowAtlas() {
 
         <BottomBar
           theme={theme}
+          map={map}
           flowNote={flow.note}
           themeId={themeId}
           onTheme={setThemeId}
@@ -874,6 +909,7 @@ export default function FlowAtlas() {
         {selectedNode && (
           <InfoPanel
             theme={theme}
+            map={map}
             node={selectedNode}
             onClose={() => setSelected(null)}
           />
@@ -887,22 +923,21 @@ export default function FlowAtlas() {
 /* Ground grid.                                                        */
 /* ------------------------------------------------------------------ */
 
-function GroundGrid({ theme }: { theme: Theme }) {
+function GroundGrid({ theme, grid }: { theme: Theme; grid: GridRange }) {
   const lines = useMemo(() => {
     const out: { d: string; major: boolean }[] = [];
-    const R = 11;
-    for (let g = -3; g <= R; g++) {
-      const a = iso(g, -3, 0);
-      const b = iso(g, R, 0);
+    for (let g = grid.gxMin; g <= grid.gxMax; g++) {
+      const a = iso(g, grid.gyMin, 0);
+      const b = iso(g, grid.gyMax, 0);
       out.push({ d: `M ${a.x} ${a.y} L ${b.x} ${b.y}`, major: g % 2 === 0 });
     }
-    for (let g = -3; g <= R; g++) {
-      const a = iso(-3, g, 0);
-      const b = iso(R, g, 0);
+    for (let g = grid.gyMin; g <= grid.gyMax; g++) {
+      const a = iso(grid.gxMin, g, 0);
+      const b = iso(grid.gxMax, g, 0);
       out.push({ d: `M ${a.x} ${a.y} L ${b.x} ${b.y}`, major: g % 2 === 0 });
     }
     return out;
-  }, []);
+  }, [grid]);
 
   return (
     <g pointerEvents="none">
@@ -935,43 +970,11 @@ function panelChrome(theme: Theme): CSSProperties {
   };
 }
 
-function Stat({
-  theme,
-  label,
-  value,
-}: {
-  theme: Theme;
-  label: string;
-  value: string;
-}) {
-  return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-      <span
-        className="mono"
-        style={{
-          fontSize: 9,
-          letterSpacing: "0.14em",
-          textTransform: "uppercase",
-          color: theme.textDim,
-        }}
-      >
-        {label}
-      </span>
-      <span
-        className="mono"
-        style={{ fontSize: 14, fontWeight: 600, color: theme.text }}
-      >
-        {value}
-      </span>
-    </div>
-  );
-}
-
 function TopBar({
   theme,
-  nodeCount,
-  laneCount,
-  flowCount,
+  map,
+  mapId,
+  onMap,
   flowId,
   onFlow,
   paused,
@@ -979,9 +982,9 @@ function TopBar({
   onReset,
 }: {
   theme: Theme;
-  nodeCount: number;
-  laneCount: number;
-  flowCount: number;
+  map: AtlasMapDef;
+  mapId: string;
+  onMap: (id: string) => void;
   flowId: string;
   onFlow: (id: string) => void;
   paused: boolean;
@@ -1006,15 +1009,45 @@ function TopBar({
       <div
         style={{
           ...panelChrome(theme),
-          display: "flex",
-          gap: 22,
-          padding: "11px 18px",
+          padding: "10px 12px",
           pointerEvents: "auto",
+          maxWidth: 420,
         }}
       >
-        <Stat theme={theme} label="Modules" value={String(nodeCount)} />
-        <Stat theme={theme} label="Lanes" value={`${laneCount} live`} />
-        <Stat theme={theme} label="Flows" value={String(flowCount)} />
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <span
+            className="mono"
+            style={{
+              fontSize: 9,
+              letterSpacing: "0.14em",
+              textTransform: "uppercase",
+              color: theme.textDim,
+              marginRight: 2,
+            }}
+          >
+            Map
+          </span>
+          {ATLAS_MAPS.map((m) => (
+            <HudButton
+              key={m.id}
+              theme={theme}
+              onClick={() => onMap(m.id)}
+              active={mapId === m.id}
+            >
+              {m.label}
+            </HudButton>
+          ))}
+        </div>
+        <div
+          className="mono"
+          style={{
+            fontSize: 11,
+            color: theme.textDim,
+            marginTop: 8,
+          }}
+        >
+          {map.note}
+        </div>
       </div>
 
       <div
@@ -1053,7 +1086,7 @@ function TopBar({
             outline: "none",
           }}
         >
-          {FLOWS.map((f) => (
+          {map.flows.map((f) => (
             <option key={f.id} value={f.id} style={{ color: "#111" }}>
               {f.label}
             </option>
@@ -1103,21 +1136,15 @@ function HudButton({
   );
 }
 
-const LEGEND: { tone: AtlasTone; label: string }[] = [
-  { tone: "human", label: "Human-led" },
-  { tone: "hybrid", label: "Human + AI" },
-  { tone: "ai", label: "AI-led" },
-  { tone: "revenue", label: "Revenue" },
-  { tone: "neutral", label: "Interface" },
-];
-
 function BottomBar({
   theme,
+  map,
   flowNote,
   themeId,
   onTheme,
 }: {
   theme: Theme;
+  map: AtlasMapDef;
   flowNote: string;
   themeId: string;
   onTheme: (id: string) => void;
@@ -1153,7 +1180,7 @@ function BottomBar({
             marginBottom: 8,
           }}
         >
-          {LEGEND.map((l) => (
+          {map.legend.map((l) => (
             <span
               key={l.tone}
               style={{
@@ -1243,20 +1270,16 @@ function swatch(theme: Theme, tone: AtlasTone): string {
 
 function InfoPanel({
   theme,
+  map,
   node,
   onClose,
 }: {
   theme: Theme;
+  map: AtlasMapDef;
   node: AtlasNode;
   onClose: () => void;
 }) {
-  const toneLabel: Record<AtlasTone, string> = {
-    human: "Human-led",
-    hybrid: "Human + AI",
-    ai: "AI-led",
-    revenue: "Revenue stream",
-    neutral: "Interface",
-  };
+  const toneLabel = map.toneLabels[node.tone] ?? node.tone;
   return (
     <div
       style={{
@@ -1337,7 +1360,7 @@ function InfoPanel({
           marginBottom: 12,
         }}
       >
-        {toneLabel[node.tone]}
+        {toneLabel}
       </span>
       <p
         style={{
