@@ -1,3 +1,4 @@
+import Link from "next/link";
 import Tour from "../components/Tour";
 
 export default function Home() {
@@ -68,6 +69,24 @@ export default function Home() {
             />
             Backed by Antler
           </span>
+          <Link
+            href="/atlas"
+            className="mono"
+            style={{
+              marginLeft: "auto",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 8,
+              border: "1px solid var(--blue)",
+              borderRadius: 2,
+              padding: "6px 12px",
+              fontSize: 12,
+              color: "var(--blue)",
+              textDecoration: "none",
+            }}
+          >
+            View the 3D atlas →
+          </Link>
         </div>
 
         <div className="kicker" style={{ color: "var(--blue)", marginBottom: 22 }}>
