@@ -493,7 +493,12 @@ export default function FlowAtlas() {
 
   /* ---- Pan and zoom ------------------------------------------------ */
 
-  const dragRef = useRef<{ x: number; y: number } | null>(null);
+  const dragRef = useRef<{
+    x: number;
+    y: number;
+    id: number;
+    active: boolean;
+  } | null>(null);
   const movedRef = useRef(false);
 
   const svgScale = useCallback(() => {
@@ -502,36 +507,52 @@ export default function FlowAtlas() {
     return { sx: VIEW_W / rect.width, sy: VIEW_H / rect.height, rect };
   }, []);
 
+  // Record the press, but do not capture the pointer yet: capturing on down
+  // would swallow clicks on the HUD buttons and the towers. Panning only
+  // begins (and captures) once the pointer actually moves past a threshold.
   const onPointerDown = useCallback((e: React.PointerEvent) => {
-    dragRef.current = { x: e.clientX, y: e.clientY };
+    dragRef.current = { x: e.clientX, y: e.clientY, id: e.pointerId, active: false };
     movedRef.current = false;
-    setGrabbing(true);
-    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
   }, []);
 
   const onPointerMove = useCallback(
     (e: React.PointerEvent) => {
-      if (!dragRef.current) return;
-      const dx = e.clientX - dragRef.current.x;
-      const dy = e.clientY - dragRef.current.y;
-      if (Math.abs(dx) + Math.abs(dy) > 4) movedRef.current = true;
+      const drag = dragRef.current;
+      if (!drag) return;
+      const dx = e.clientX - drag.x;
+      const dy = e.clientY - drag.y;
+      if (!drag.active) {
+        if (Math.abs(dx) + Math.abs(dy) <= 4) return;
+        drag.active = true;
+        movedRef.current = true;
+        setGrabbing(true);
+        try {
+          (e.currentTarget as HTMLElement).setPointerCapture(drag.id);
+        } catch {
+          /* capture unsupported */
+        }
+      }
       const { sx, sy } = svgScale();
       const v = viewRef.current;
       v.x += dx * sx;
       v.y += dy * sy;
-      dragRef.current = { x: e.clientX, y: e.clientY };
+      drag.x = e.clientX;
+      drag.y = e.clientY;
       applyCamera();
     },
     [svgScale, applyCamera],
   );
 
   const onPointerUp = useCallback((e: React.PointerEvent) => {
+    const drag = dragRef.current;
     dragRef.current = null;
     setGrabbing(false);
-    try {
-      (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
-    } catch {
-      /* pointer already released */
+    if (drag?.active) {
+      try {
+        (e.currentTarget as HTMLElement).releasePointerCapture(drag.id);
+      } catch {
+        /* pointer already released */
+      }
     }
   }, []);
 
