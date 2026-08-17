@@ -346,7 +346,7 @@ interface View {
 }
 
 export default function FlowAtlas() {
-  const { nodeGeo, edgeGeo, bounds } = useMemo(buildGeometry, []);
+  const { nodeGeo, edgeGeo, bounds } = useMemo(() => buildGeometry(), []);
   const edgeMap = useMemo(() => {
     const m = new Map<string, EdgeGeo>();
     edgeGeo.forEach((e) => m.set(e.id, e));
@@ -377,7 +377,7 @@ export default function FlowAtlas() {
   const [paused, setPaused] = useState(false);
   const [selected, setSelected] = useState<string | null>(null);
   const [hovered, setHovered] = useState<string | null>(null);
-  const [mounted, setMounted] = useState(false);
+  const [grabbing, setGrabbing] = useState(false);
 
   const activeEdges = useMemo(() => {
     if (flow.edges.length === 0) return null; // null => all active
@@ -405,8 +405,12 @@ export default function FlowAtlas() {
   const pausedRef = useRef(paused);
   const reducedRef = useRef(false);
 
-  activeEdgesRef.current = activeEdges;
-  pausedRef.current = paused;
+  useEffect(() => {
+    activeEdgesRef.current = activeEdges;
+  }, [activeEdges]);
+  useEffect(() => {
+    pausedRef.current = paused;
+  }, [paused]);
 
   const applyCamera = useCallback(() => {
     const v = viewRef.current;
@@ -437,7 +441,6 @@ export default function FlowAtlas() {
   }, [payloads, edgeMap]);
 
   useEffect(() => {
-    setMounted(true);
     applyCamera();
     reducedRef.current =
       typeof window !== "undefined" &&
@@ -502,6 +505,7 @@ export default function FlowAtlas() {
   const onPointerDown = useCallback((e: React.PointerEvent) => {
     dragRef.current = { x: e.clientX, y: e.clientY };
     movedRef.current = false;
+    setGrabbing(true);
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
   }, []);
 
@@ -523,6 +527,7 @@ export default function FlowAtlas() {
 
   const onPointerUp = useCallback((e: React.PointerEvent) => {
     dragRef.current = null;
+    setGrabbing(false);
     try {
       (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
     } catch {
@@ -568,7 +573,7 @@ export default function FlowAtlas() {
     borderRadius: 4,
     overflow: "hidden",
     touchAction: "none",
-    cursor: dragRef.current ? "grabbing" : "grab",
+    cursor: grabbing ? "grabbing" : "grab",
     userSelect: "none",
     WebkitUserSelect: "none",
     transition: "background .5s ease, border-color .5s ease",
@@ -593,7 +598,7 @@ export default function FlowAtlas() {
           style={{ display: "block", width: "100%", height: "100%" }}
         >
           <g ref={cameraRef}>
-            <GroundGrid theme={theme} bounds={bounds} />
+            <GroundGrid theme={theme} />
 
             {/* Lanes on the floor, beneath the towers. */}
             <g>
@@ -653,7 +658,7 @@ export default function FlowAtlas() {
               return (
                 <g
                   key={g.node.id}
-                  className={mounted ? "atlas-rise" : undefined}
+                  className="atlas-rise"
                   style={{
                     opacity: on ? 1 : 0.16,
                     cursor: "pointer",
@@ -861,13 +866,7 @@ export default function FlowAtlas() {
 /* Ground grid.                                                        */
 /* ------------------------------------------------------------------ */
 
-function GroundGrid({
-  theme,
-  bounds,
-}: {
-  theme: Theme;
-  bounds: { minX: number; minY: number; maxX: number; maxY: number };
-}) {
+function GroundGrid({ theme }: { theme: Theme }) {
   const lines = useMemo(() => {
     const out: { d: string; major: boolean }[] = [];
     const R = 11;
